@@ -54,10 +54,14 @@ def find_excel_button(page):
         "text=엑셀 다운로드",
         "text=엑셀다운로드",
         "text=Excel",
+        "input[value*='엑셀']",
+        "input[type='button'][value*='엑셀']",
+        "input[type='submit'][value*='엑셀']",
         "img[alt*='엑셀']",
         "a[onclick*='excel' i]",
         "a[onclick*='Excel']",
         "button[onclick*='excel' i]",
+        "input[onclick*='excel' i]",
         "[title*='엑셀']",
     ]
     for sel in candidates:
@@ -79,17 +83,33 @@ def download_one(page, target):
 
     print(f"  페이지 타이틀: {page.title()}")
 
-    # 조회 버튼 (있으면 클릭, 없어도 진행)
-    try:
-        page.click("text=조회", timeout=5000)
-        page.wait_for_timeout(1500)
-    except Exception:
+    # 조회 버튼 (있으면 클릭, 없어도 진행) - input[value=조회] 형태도 포함해서 탐색
+    search_candidates = [
+        "text=조회",
+        "input[value='조회']",
+        "input[type='submit'][value*='조회']",
+        "input[type='button'][value*='조회']",
+        "button:has-text('조회')",
+    ]
+    clicked_search = False
+    for sel in search_candidates:
+        try:
+            loc = page.locator(sel)
+            if loc.count() > 0 and loc.first.is_visible():
+                loc.first.click(timeout=5000)
+                clicked_search = True
+                print(f"  '조회' 버튼 클릭 성공: {sel}")
+                page.wait_for_timeout(1500)
+                break
+        except Exception:
+            continue
+    if not clicked_search:
         print("  '조회' 버튼을 못 찾음 - 기본 목록으로 진행")
 
     # 엑셀 버튼 탐색
     # "엑셀 다운로드" 버튼이 늦게 렌더링될 수 있으니 최대 10초 대기
     try:
-        page.wait_for_selector("text=엑셀 다운로드", timeout=10000, state="attached")
+        page.wait_for_selector("text=엑셀 다운로드, input[value*='엑셀']", timeout=10000, state="attached")
     except Exception:
         pass
 
@@ -102,6 +122,16 @@ def download_one(page, target):
             print("  (참고) 페이지 소스에는 '엑셀'이라는 단어가 존재함 -> 선택자만 문제일 가능성")
         else:
             print("  (참고) 페이지 소스에 '엑셀'이라는 단어 자체가 없음 -> 페이지가 다르게 로드됐을 가능성")
+
+        # 아티팩트를 못 찾는 경우를 대비해 로그에 직접 본문 텍스트 일부 출력
+        try:
+            body_text = page.inner_text("body")
+            print("  ----- 페이지 본문 텍스트 (앞부분 1500자) -----")
+            print(body_text[:1500])
+            print("  ----- 페이지 본문 텍스트 끝 -----")
+        except Exception as e:
+            print(f"  본문 텍스트 추출 실패: {e}")
+
         raise RuntimeError("엑셀 다운로드 버튼을 찾지 못함")
 
     try:
