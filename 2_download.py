@@ -75,11 +75,37 @@ def find_excel_button(page):
     return None
 
 
-def download_one(page, target):
+def download_one(page, target, max_retries=4):
     print(f"\n>>> {target['name']} 다운로드 시작")
-    # networkidle은 추적 스크립트 등으로 인해 영영 안 끝날 수 있어 domcontentloaded로 변경
-    page.goto(target["url"], wait_until="domcontentloaded", timeout=30000)
-    page.wait_for_timeout(2000)
+
+    main_url = "https://www.animal.go.kr/"
+
+    for attempt in range(1, max_retries + 1):
+        print(f"  시도 {attempt}/{max_retries}")
+        try:
+            page.goto(main_url, wait_until="domcontentloaded", timeout=30000)
+            page.wait_for_timeout(1000)
+        except Exception as e:
+            print(f"  메인페이지 접속 실패(무시하고 진행): {e}")
+
+        page.goto(target["url"], referer=main_url, wait_until="domcontentloaded", timeout=30000)
+        page.wait_for_timeout(2000)
+
+        # 사이트가 간헐적으로 "페이지를 찾을 수 없습니다" 오류를 반환하는 경우 재시도
+        body_text = ""
+        try:
+            body_text = page.inner_text("body")
+        except Exception:
+            pass
+
+        if "페이지를 찾을 수 없습니다" in body_text or "존재하지 않거나" in body_text:
+            print(f"  사이트 오류 페이지 감지 - {attempt}번째 시도 실패, 재시도 대기...")
+            page.wait_for_timeout(5000 * attempt)  # 재시도마다 대기 시간을 늘림
+            continue
+        else:
+            break
+    else:
+        raise RuntimeError(f"{max_retries}번 재시도했지만 계속 오류 페이지가 나옴")
 
     print(f"  페이지 타이틀: {page.title()}")
 
