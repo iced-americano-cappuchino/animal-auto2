@@ -1,0 +1,45 @@
+name: 유기동물 데이터 자동 수집
+
+on:
+  schedule:
+    # UTC 15:01 = KST 00:01 (다음날)
+    - cron: "1 15 * * *"
+  workflow_dispatch: {}   # 수동 실행 버튼도 추가
+
+jobs:
+  scrape-and-visualize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 패키지 설치
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+
+      - name: 다운로드 실행
+        run: python 2_download.py
+
+      - name: 병합 및 시각화 실행
+        run: python 3_merge_visualize.py
+
+      - name: 결과물 커밋 (저장소에 결과 저장)
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add downloads outputs
+          git commit -m "자동 수집: $(date +'%Y-%m-%d')" || echo "변경사항 없음"
+          git push
+
+      # 필요하면 아래처럼 결과를 이메일/슬랙 등으로 보낼 수도 있습니다.
+      # - name: 결과 업로드 (Artifact)
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: daily-report
+      #     path: outputs/
