@@ -51,8 +51,8 @@ def debug_dump(page, target, tag):
 def find_excel_button(page):
     """여러 후보 텍스트/선택자로 엑셀 다운로드 버튼을 탐색"""
     candidates = [
-        "text=엑셀다운로드",
         "text=엑셀 다운로드",
+        "text=엑셀다운로드",
         "text=Excel",
         "img[alt*='엑셀']",
         "a[onclick*='excel' i]",
@@ -87,6 +87,12 @@ def download_one(page, target):
         print("  '조회' 버튼을 못 찾음 - 기본 목록으로 진행")
 
     # 엑셀 버튼 탐색
+    # "엑셀 다운로드" 버튼이 늦게 렌더링될 수 있으니 최대 10초 대기
+    try:
+        page.wait_for_selector("text=엑셀 다운로드", timeout=10000, state="attached")
+    except Exception:
+        pass
+
     btn = find_excel_button(page)
     if btn is None:
         print("  엑셀 다운로드 버튼을 찾지 못함 - 디버그 정보 저장")
@@ -99,8 +105,17 @@ def download_one(page, target):
         raise RuntimeError("엑셀 다운로드 버튼을 찾지 못함")
 
     try:
+        btn.scroll_into_view_if_needed(timeout=5000)
+    except Exception:
+        pass
+
+    try:
         with page.expect_download(timeout=30000) as download_info:
-            btn.click()
+            try:
+                btn.click(timeout=5000)
+            except Exception:
+                # 보통 클릭이 막히면(다른 요소에 가려짐 등) 강제 클릭 시도
+                btn.click(timeout=5000, force=True)
         download = download_info.value
         save_path = os.path.join(DOWNLOAD_DIR, target["filename"])
         download.save_as(save_path)
