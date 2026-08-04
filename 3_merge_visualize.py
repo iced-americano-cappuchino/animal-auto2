@@ -4,49 +4,34 @@
 downloads/ 폴더에 있는 오늘 날짜의 두 엑셀 파일을 읽어서
 1) 컬럼명을 정리하고
 2) 공통 컬럼 기준으로 병합(concat, 출처 컬럼 추가)하고
-3) 상태별/품종별/일자별 차트를 만들어 저장합니다.
-
-두 파일의 컬럼이 완전히 다르므로, "공통 컬럼"과 "각 파일에만 있는 컬럼"을
-구분해서 합칩니다 (RIGHT JOIN이 아니라 세로로 이어붙이는 concat 방식).
-필요하면 이 로직을 실제 컬럼명에 맞게 수정하세요.
+3) 상태별/품종별 차트를 만들어 저장합니다.
 
 실행:
     pip install pandas openpyxl xlrd matplotlib --break-system-packages
     python 3_merge_visualize.py
 """
-
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 import glob
 import os
 from datetime import datetime
-import matplotlib.font_manager as fm
-import matplotlib.pyplot as plt
-import glob
-import matplotlib.font_manager as fm
 
-
+# ------------------------------------------------------------------
+# 한글 폰트 설정 (Ubuntu 러너: NanumGothic / 로컬 Windows: Malgun Gothic)
+# ------------------------------------------------------------------
 fonts = glob.glob('/usr/share/fonts/**/NanumGothic*.ttf', recursive=True)
 if fonts:
     fm.fontManager.addfont(fonts[0])
     plt.rcParams['font.family'] = 'NanumGothic'
+else:
+    plt.rcParams['font.family'] = 'Malgun Gothic'
 plt.rcParams['axes.unicode_minus'] = False
-
 
 DOWNLOAD_DIR = os.path.join(os.path.dirname(__file__), "downloads")
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "outputs")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
-
 TODAY = datetime.now().strftime("%Y%m%d")
-
-# matplotlib에서 한글 깨짐 방지 (환경에 나눔고딕 등이 없으면 폰트 경로를 조정하세요)
-plt.rcParams["axes.unicode_minus"] = False
-for font_name in ["NanumGothic", "Malgun Gothic", "AppleGothic"]:
-    try:
-        plt.rcParams["font.family"] = font_name
-        break
-    except Exception:
-        continue
 
 
 def find_latest_file(keyword):
@@ -59,7 +44,6 @@ def find_latest_file(keyword):
 
 def load_excel(path):
     # 정부 사이트 다운로드 파일은 확장자만 .xls인 html 표 형식인 경우가 많음
-    # 우선 read_excel 시도, 실패하면 read_html로 재시도
     try:
         return pd.read_excel(path)
     except Exception:
@@ -70,7 +54,6 @@ def load_excel(path):
 def main():
     f1 = find_latest_file("입양대상동물")
     f2 = find_latest_file("보호센터_보호동물")
-
     df_adopt = load_excel(f1)
     df_protect = load_excel(f2)
 
@@ -87,7 +70,6 @@ def main():
 
     # 세로 병합 (컬럼이 다르면 없는 쪽은 NaN으로 채워짐)
     merged = pd.concat([df_adopt, df_protect], ignore_index=True, sort=False)
-
     merged_path = os.path.join(OUTPUT_DIR, f"merged_{TODAY}.xlsx")
     merged.to_excel(merged_path, index=False)
     print(f"\n병합 완료: {merged_path} (총 {len(merged)}건)")
@@ -103,6 +85,7 @@ def main():
     chart1_path = os.path.join(OUTPUT_DIR, f"chart_source_count_{TODAY}.png")
     plt.savefig(chart1_path, dpi=150)
     plt.close()
+    print(f"차트 저장: {chart1_path}")
 
     # ------------------------------------------------------------------
     # 시각화 2: 상태 컬럼이 있으면 상태별 분포
@@ -133,7 +116,6 @@ def main():
         plt.close()
         print(f"차트 저장: {chart3_path}")
 
-    print(f"차트 저장: {chart1_path}")
     print("\n완료.")
 
 
