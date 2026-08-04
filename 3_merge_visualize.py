@@ -22,10 +22,16 @@ import os
 from datetime import datetime
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
+import glob
+import matplotlib.font_manager as fm
 
-fm.fontManager.addfont('/usr/share/fonts/truetype/nanum/NanumGothic.ttf')
-plt.rcParams['font.family'] = 'NanumGothic'
+
+fonts = glob.glob('/usr/share/fonts/**/NanumGothic*.ttf', recursive=True)
+if fonts:
+    fm.fontManager.addfont(fonts[0])
+    plt.rcParams['font.family'] = 'NanumGothic'
 plt.rcParams['axes.unicode_minus'] = False
+
 
 DOWNLOAD_DIR = os.path.join(os.path.dirname(__file__), "downloads")
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "outputs")
