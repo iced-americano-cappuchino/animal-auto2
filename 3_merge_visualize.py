@@ -21,17 +21,15 @@ from datetime import datetime
 # 한글 폰트 설정 (Ubuntu 러너: NanumGothic / 로컬 Windows: Malgun Gothic)
 # ------------------------------------------------------------------
 fonts = glob.glob('/usr/share/fonts/**/NanumGothic*.ttf', recursive=True)
+print("찾은 폰트 파일:", fonts)   # 진단용
 if fonts:
     fm.fontManager.addfont(fonts[0])
     plt.rcParams['font.family'] = 'NanumGothic'
+    print("폰트 적용: NanumGothic")
 else:
     plt.rcParams['font.family'] = 'Malgun Gothic'
+    print("경고: 나눔폰트 없음 — 러너에서는 글씨가 깨집니다")
 plt.rcParams['axes.unicode_minus'] = False
-
-DOWNLOAD_DIR = os.path.join(os.path.dirname(__file__), "downloads")
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "outputs")
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-TODAY = datetime.now().strftime("%Y%m%d")
 
 
 def find_latest_file(keyword):
