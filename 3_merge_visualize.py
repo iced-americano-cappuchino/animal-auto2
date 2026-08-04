@@ -20,8 +20,12 @@ import matplotlib.pyplot as plt
 import glob
 import os
 from datetime import datetime
-plt.rcParams['font.family'] = 'Malgun Gothic'
-plt.rcParams['axes.unicode_minus']= False
+import matplotlib.font_manager as fm
+import matplotlib.pyplot as plt
+
+fm.fontManager.addfont('/usr/share/fonts/truetype/nanum/NanumGothic.ttf')
+plt.rcParams['font.family'] = 'NanumGothic'
+plt.rcParams['axes.unicode_minus'] = False
 
 DOWNLOAD_DIR = os.path.join(os.path.dirname(__file__), "downloads")
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "outputs")
