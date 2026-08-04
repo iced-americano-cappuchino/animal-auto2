@@ -26,6 +26,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y fonts-nanum
+          fc-list | grep -i nanum
 
       - name: 다운로드 실행
         id: download_step
@@ -53,6 +54,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+          git pull --rebase
           git add downloads outputs
           git commit -m "자동 수집: $(date +'%Y-%m-%d')" || echo "변경사항 없음"
           git push
