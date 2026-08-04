@@ -6,7 +6,6 @@ downloads/ 폴더에 있는 오늘 날짜의 두 엑셀 파일을 읽어서
 1) 컬럼명을 정리하고
 2) 공통 컬럼 기준으로 병합(concat, 출처 컬럼 추가)하고
 3) 상태별/품종별 차트를 만들어 저장합니다.
-
 실행:
     pip install pandas openpyxl xlrd matplotlib --break-system-packages
     python 3_merge_visualize.py
@@ -19,20 +18,6 @@ import os
 from datetime import datetime
 
 # ------------------------------------------------------------------
-# 한글 폰트 설정 (Ubuntu 러너: NanumGothic / 로컬 Windows: Malgun Gothic)
-# ------------------------------------------------------------------
-fonts = glob.glob('/usr/share/fonts/**/NanumGothic*.ttf', recursive=True)
-print("찾은 폰트 파일:", fonts)
-if fonts:
-    fm.fontManager.addfont(fonts[0])
-    plt.rcParams['font.family'] = 'NanumGothic'
-    print("폰트 적용: NanumGothic")
-else:
-    plt.rcParams['font.family'] = 'Malgun Gothic'
-    print("경고: 나눔폰트 없음 - Ubuntu 러너에서는 글씨가 깨집니다")
-plt.rcParams['axes.unicode_minus'] = False
-
-# ------------------------------------------------------------------
 # 경로 설정
 # ------------------------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -40,6 +25,19 @@ DOWNLOAD_DIR = os.path.join(BASE_DIR, "downloads")
 OUTPUT_DIR = os.path.join(BASE_DIR, "outputs")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 TODAY = datetime.now().strftime("%Y%m%d")
+
+# ------------------------------------------------------------------
+# 한글 폰트 설정: 저장소에 포함된 NanumGothic.ttf 사용
+# (어느 환경에서든 동일하게 동작 - 폰트 설치 불필요)
+# ------------------------------------------------------------------
+FONT_PATH = os.path.join(BASE_DIR, "NanumGothic.ttf")
+if os.path.exists(FONT_PATH):
+    fm.fontManager.addfont(FONT_PATH)
+    plt.rcParams['font.family'] = 'NanumGothic'
+    print("폰트 적용:", FONT_PATH)
+else:
+    print("경고: NanumGothic.ttf 없음 - 글씨가 깨질 수 있습니다")
+plt.rcParams['axes.unicode_minus'] = False
 
 
 def find_latest_file(keyword):
