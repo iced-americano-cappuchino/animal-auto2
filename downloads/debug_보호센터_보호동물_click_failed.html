@@ -1,0 +1,3563 @@
+<!DOCTYPE html><html lang="ko" style="--vh: 7.2px;"><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+국가동물보호정보시스템
+
+	
+		
+	
+		
+		&nbsp;보호센터 보호동물
+		
+	
+
+</title>
+	<script type="text/javascript" src="/front/js/homepage.common.js"></script>
+	
+
+
+
+
+
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<script>
+var contextPath = "/front";
+function getModeCookie(name) {
+    var cookies = document.cookie.split(";");
+    for (var i = 0; i < cookies.length; i++) {
+        if (cookies[i].indexOf("=") == -1) {
+            if (name == cookies[i])
+                return "";
+        } else {
+            var crumb = cookies[i].split("=");
+            if (name == crumb[0].trim())
+                return unescape(crumb[1].trim());
+        }
+    }
+};
+var desktopModeTF = getModeCookie("DesktopMode");
+var Scale = getModeCookie("DesktopModeScale");
+var defWidth = 1250;
+if (desktopModeTF == "true") {
+    document
+            .write('<meta name="viewport" content="width='+defWidth+', user-scalable=yes, initial-scale='+Scale+'">');
+} else {
+    document
+            .write('<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">');
+}
+function desktopMode() {
+    if(getModeCookie("DesktopMode") == "true"){
+        setModeCookie(false);
+    }else{
+        setModeCookie(true);
+        window.scrollTo(0, 0);
+    }
+    location.reload();
+
+}
+function setModeCookie(switchOn){
+    var now = new Date();
+    var time = now.getTime();
+    time += 3600 * 1000;
+    now.setTime(time);
+    document.cookie ='DesktopMode='+switchOn +';';// expires=' + now.toUTCString() ;
+    if(switchOn){
+        document.cookie = "DesktopModeScale=" + $('html').width() / defWidth +';';// expires=' + now.toUTCString();
+    }
+}
+</script><meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+<script type="text/javascript" src="/front/js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/front/js/jquery-ui-1.8.20.custom.min.js"></script>
+<script type="text/javascript" src="/front/js/jquery.form.js"></script>
+<script type="text/javascript" src="/front/js/jquery.blockUI.custom.js"></script>
+<script type="text/javascript" src="/front/js/jquery.timer.js"></script>
+<script type="text/javascript" src="/front/js/application.js"></script>
+<script type="text/javascript" src="/front/js/message_resources/ko.js"></script>
+<script type="text/javascript" src="/front/js/menu.js"></script>
+<script type="text/javascript" src="/front/js/jquery.json-2.2.js"></script>
+<script type="text/javascript" src="/front/js/json.min.js"></script>
+<script type="text/javascript" src="/front/js/jquery.smartPop.js"></script>
+<script type="text/javascript" src="/front/js/jcarousellite_1.0.1.js"></script>
+<script type="text/javascript" src="/front/js/jquery.mousewheel.js"></script>
+<script type="text/javascript" src="/front/js/form.js"></script>
+
+
+<link rel="stylesheet" href="/front/css/sub.css?v=20210730">
+<link rel="stylesheet" href="/front/css/bbs.css">
+<script type="text/javascript" src="/front/js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="/front/js/common.js"></script>
+<script type="text/javascript" src="/front/js/main.js"></script>
+
+
+	<script type="text/javascript" src="/front/js/calendar/calendar.js"></script>
+	<script type="text/javascript" src="/front/js/calendar/lang/calendar-ko-utf8.js"></script>
+	<script type="text/javascript" src="/front/js/calendar/calendar-setup.js"></script>
+
+	<script type="text/javascript">
+
+		ajaxErrorHandler();
+
+		$(function() {
+
+
+			$('#searchSDate, #searchEDate').focus(function(){
+				//20200407 ksg 웹접근성 수정
+				//$(this).trigger('click');
+			});
+
+			//시군
+			$("#searchUprCd").on("change" ,function(){
+				var orgCd = $("#searchOrgCd");
+				var thisValue = $(this).val();
+
+				var optionHtml = "";
+				orgCd.find("option").remove();
+				optionHtml = "<option value=''>전체</option>";
+
+				//시도가 변경되면 보호센터도 초기화 한다.
+				$("#searchCareRegNo").find("option").remove();
+				$("#searchCareRegNo").append("<option value=''>전체</option>");
+
+				if(thisValue != ""){
+					$.ajax({
+						async : false,
+						type: "post",
+						url : '/front/awtis/comm/selectComOrganTGunList.do',
+						data: "uprCd=" + thisValue,
+						dataType: "json",
+						success: function (dataObj) {
+							var data = dataObj.data;
+
+							if(data.length<=0){
+							}else{
+								optionHtml1 = "<option value=''>전체</option>";
+								optionHtml2 = "";
+								for (var i = 0; i < data.length; i++) {
+									var codeType = data[i].orgCd;
+									var codeTypeName = data[i].orgdownNm;
+									if(codeTypeName == "개별사업"){
+										optionHtml2 = "<option value='" + codeType + "'>서울시 전체</option>" + optionHtml2;
+									}else{
+										optionHtml2 += "<option value='" + codeType + "'>" + codeTypeName + "</option>";
+									}
+								}
+								optionHtml = optionHtml1 + optionHtml2;
+							}
+						}
+					});
+				}
+				orgCd.append(optionHtml);
+			});
+
+			//보호센터
+			$("#searchOrgCd").on("change" ,function(){
+				var htmlId = $("#searchCareRegNo");
+				var searchUprCd = $("#searchUprCd").val();
+				var searchOrgCd = $("#searchOrgCd").val();
+
+				var optionHtml = "";
+				htmlId.find("option").remove();
+				optionHtml = "<option value=''>전체</option>";
+
+				if(searchOrgCd != ""){
+					$.ajax({
+						async : false,
+						type: "post",
+						url : '/front/awtis/comm/selectShelterList.do',
+						data: "searchUprCd=" + searchUprCd + "&searchOrgCd=" + searchOrgCd,
+						dataType: "json",
+						success: function (dataObj) {
+							var data = dataObj.data;
+							if(data.length<=0){
+							}else{
+								optionHtml = "<option value=''>전체</option>";
+								for (var i = 0; i < data.length; i++) {
+									var codeType = data[i].careRegNo;
+									var codeTypeName = data[i].careNm;
+									optionHtml += "<option value='" + codeType + "'>" + codeTypeName + "</option>";
+								}
+							}
+						}
+					});
+				}
+				htmlId.append(optionHtml);
+			});
+
+			//품종
+			$("#searchUpKindCd").on("change" ,function(){
+				var kindCd = $("#searchKindCd");
+				var thisValue = $(this).val();
+
+				var optionHtml = "";
+				kindCd.find("option").remove();
+				optionHtml = "<option value=''>전체</option>";
+
+				if(thisValue != ""){
+					$.ajax({
+						async : false,
+						type: "post",
+						url : '/front/awtis/comm/selectComKindList.do',
+						data: "upKindCd=" + thisValue,
+						dataType: "json",
+						success: function (dataObj) {
+							var data = dataObj.data;
+							if(data.length<=0){
+							}else{
+								optionHtml = "<option value=''>전체</option>";
+								for (var i = 0; i < data.length; i++) {
+									var codeType = data[i].kindCd;
+									var codeTypeName = data[i].kNm;
+									optionHtml += "<option value='" + codeType + "'>" + codeTypeName + "</option>";
+								}
+							}
+						}
+					});
+				}
+				kindCd.append(optionHtml);
+			});
+
+
+			$("#searchButton").on("click", function(){
+				/* JYJ 2019.08.23 날짜 형식 체크 추가 시작 */
+				if(!dtPatternCheck($("#searchSDate").val())){
+					alert("시작일자 날짜 형식이 올바르지 않습니다..");
+					return false;
+				}
+				if(!dtPatternCheck($("#searchEDate").val())){
+					alert("종료일자 날짜 형식이 올바르지 않습니다..");
+					return false;
+				}
+				/* JYJ 2019.08.23 날짜 형식 체크 추가 끝 */
+
+				if($("#searchSDate").val() > $("#searchEDate").val()){
+					alert("검색 시작일자가 또는 검색 종료일자가 올바르지 않습니다.\n(시작일자보다 종료일자가 빠름)");
+					return;
+				}
+
+				$("input[name='page']").val(1);
+				$("#searchList").attr("onsubmit","");
+				$("#searchList").submit();
+			});
+			/* 20250513 백승엽 개선사항 */
+			$("#searchPublicToProtectionButton").on("click", function(){
+
+				if(!dtPatternCheck($("#searchSDate").val())){
+					alert("시작일자 날짜 형식이 올바르지 않습니다..");
+					return false;
+				}
+				if(!dtPatternCheck($("#searchEDate").val())){
+					alert("종료일자 날짜 형식이 올바르지 않습니다..");
+					return false;
+				}
+
+
+				if($("#searchSDate").val() > $("#searchEDate").val()){
+					alert("검색 시작일자가 또는 검색 종료일자가 올바르지 않습니다.\n(시작일자보다 종료일자가 빠름)");
+					return;
+				}
+
+				$("input[name='page']").val(1);
+				$("#publicToProtection").attr("onsubmit","");
+				$("#publicToProtection").submit();
+
+			});
+
+			var nowDate = new Date();
+			var nYear = nowDate.getFullYear();      //오늘의 년도
+			var nMonth = nowDate.getMonth()+1 ;       //오늘의 월 ※ 0월부터 시작
+			var nDate = nowDate.getDate();           //오늘의 날
+			if(nMonth<10) nMonth = '0'+ nMonth;
+			if(nDate<10) nDate = '0'+ nDate;
+			var nowDt = "" + nYear + "-" + nMonth + "-" + nDate ;
+
+			nowDate.setMonth(nowDate.getMonth()-1);
+			var sYear = nowDate.getFullYear();      //오늘의 년도
+			var sMonth = nowDate.getMonth()+1 ;       //오늘의 월 ※ 0월부터 시작
+			var sDate = nowDate.getDate();           //오늘의 날
+			if(sMonth<10) sMonth = '0'+ sMonth;
+			if(sDate<10) sDate = '0'+ sDate;
+			var setDt = "" + sYear + "-"+ sMonth + "-"+ sDate ;
+
+			//조회조건세팅
+			var searchSDate = "2026-09-12";
+			if(searchSDate == ""){
+				searchSDate = setDt;
+			}
+			var searchEDate = "2026-10-12";
+			if(searchEDate == ""){
+				searchEDate = nowDt;
+			}
+			$("#searchSDate").val(searchSDate);
+			$("#searchEDate").val(searchEDate);
+
+			$("#searchUprCd").val("");
+			$("#searchUprCd").trigger("change");
+			$("#searchOrgCd").val("");
+			$("#searchOrgCd").trigger("change");
+			$("#searchCareRegNo").val("");
+
+			$("#searchUpKindCd").val("");
+			$("#searchUpKindCd").trigger("change");
+			$("#searchKindCd").val("");
+
+
+			$("#searchSexCd").val("");
+
+			$("#searchRfid").val("");
+
+			$("#excel_button").click(function(){
+				var $form = $("#excelList").attr("method", "get").attr("action", "/front/awtis/public/publicListExcel.do");
+				$form.submit();
+			});
+
+		});
+
+		//상세조회, 보안취약점 위배사항으로 get->post 방식변경
+		function moveUrl(desertionNo){
+			var $moveForm = $("#searchList");
+			$("#desertionNo",$moveForm).val(desertionNo);
+			$("#searchList").attr("onsubmit","");
+			$("#searchList").attr("action","publicDtl.do");
+			$("#searchList").submit();
+		}
+
+		/* JYJ 2019.08.23 날짜 형식 체크 함수 추가 */
+		function dtPatternCheck(dt){
+			var pattern = /[0-9]{4}-([0][1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])/;
+			return pattern.test(dt);
+		}
+
+	</script>
+</head>
+
+<body style="overflow-y: auto;">
+
+
+
+
+
+
+
+
+
+ 
+
+   <link rel="shortcut icon" href="/front/images/common/favicon.ico">
+   <link rel="stylesheet" type="text/css" href="/front/css/font.css">
+   <link rel="stylesheet" type="text/css" href="/front/css/swiper.css">
+   <link rel="stylesheet" type="text/css" href="/front/css/base.css?v=202505071831">
+   <link rel="stylesheet" type="text/css" href="/front/css/layout.css?v=202505071830">
+   <link rel="stylesheet" type="text/css" href="/front/css/main.css?v=202505071830">
+   <link rel="stylesheet" type="text/css" href="/front/css/style.css?v=202505071830">
+   <link rel="stylesheet" type="text/css" href="/front/css/responsive.css?v=202505071830">
+
+   <script src="/front/js/jquery.min.js"> </script>
+   <script src="/front/js/swiper.min.js"> </script>
+   <script src="/front/js/colorbox.min.js"> </script>
+
+   <script defer="defer" src="/front/js/base.js"> </script>
+
+
+<style>
+
+.right_banner {
+  position: absolute;
+  top: 350px;
+  /* top: 250px; */
+  /*   -webkit-transform: translateY(-50%); */
+  /*   -ms-transform: translateY(-50%); */
+  /*   transform: translateY(-50%); */
+  /* right:calc(50% - 740px);  *//* right:calc(50% - social bar width/2) */
+  right:calc(43% - 740px); 
+  z-index : 99999999;
+  background-color: #dd4b39; /*#3B5998 #55ACEE #dd4b39 #007bb5 #bb0000*/
+}
+
+
+.right_banner a {
+  display: block;
+  text-align: center;
+  padding: 10px;
+  transition: all 0.3s ease;
+  color: white;
+  font-size: 15px;
+}
+
+
+@media screen and (max-width:768px){
+.right_banner {
+/*   display: none; */
+	right: 10px; /* right:calc(50% - social bar width/2) */
+  }
+  
+.right_banner a {
+  display: block;
+  text-align: center;
+  padding: 5px;
+  transition: all 0.3s ease;
+  color: white;
+  font-size: 11px;
+  }
+}
+
+.right_banner a:hover {
+  /*background-color: #000;*/
+    outline: 2px dashed black; outline-offset: 3px; transition:none;  /*웹접근성 추가 조치*/
+}
+
+.right_banner a:focus {
+    /*background-color: #000;*/
+    outline: 2px dashed black; outline-offset: 3px; transition:none;  /*웹접근성 추가 조치*/
+}
+
+.right_banner .a2 {
+  background-color: #3B5998; /*#3B5998 #55ACEE #dd4b39 #007bb5 #bb0000*/
+}
+
+.right_banner .a2:hover {
+  /*background-color: #000;*/
+    outline: 2px dashed black; outline-offset: 3px; transition:none;  /*웹접근성 추가 조치*/
+}
+
+.right_banner .a2:focus {
+    /*background-color: #000;*/
+    outline: 2px dashed black; outline-offset: 3px; transition:none;  /*웹접근성 추가 조치*/
+}
+
+.right_banner .a3 {
+  background-color: #007bb5; /*#3B5998 #55ACEE #dd4b39 #007bb5 #bb0000*/
+}
+
+.sr_only{
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow:  hidden;
+    clip: rect(0, 0, 0, 0);
+    border : 0;
+}
+
+.waSkipNav{
+	/* 위치 및 기본 스타일 */
+	position: absolute;
+	top: 0;
+	left: 50%;
+	transform: translateX(-50%) translateY(-100%);	/*	화면 위로 숨김	*/
+	background-color: #ffffff;
+	color: #27ae60;
+	padding: 12px 25px;
+	border: 2px solid #27ae60;
+	border-top: none;
+	border-radius: 0 0 8px 8px;
+	font-weight: bold;
+	text-decoration: none;
+	z-index: 10000;
+	
+	transition: transform 0.3s eaes-in-out;		/*	부드럽게 이동	*/
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);	/*	은은한 그림자	*/
+}
+
+.waSkipNav:focus{
+	transform: translateX(-50%) translateY(0);
+    text-decoration: none; outline: 3px dashed black; outline-offset: 2px; transition:none;
+}
+
+.waSkipNav:hover {
+	background-color:  #27ae60;
+	color: #ffffff;
+}
+
+.page-location > .container > .wrap > .drop-box > ul {
+    display:none;
+}
+
+
+</style>
+
+<script>
+
+$(function() {
+    var currentPosition = parseInt($(".right_banner").css("top"));
+    $(window).scroll(function() {
+      var position = $(window).scrollTop();
+      if(position < 200){
+    	  position = 200;
+      }
+      $(".right_banner").stop().animate({"top":position+currentPosition},1000);
+    });
+});
+
+//RFID검색
+function fnBtnRfid(){
+    var searchType = $("#searchType").val();
+    var searchText = $("#searchText").val();
+
+    if(searchText == ""){
+        alert("등록번호, RFID를 입력하세요.");
+        $("#searchText").focus();
+        return false;
+    }
+    $("#searchFrmHeader").attr("onsubmit","");
+    $("#searchFrmHeader").attr("action","/front/awtis/record/searchRrecordConfirm.do");
+    $("#searchFrmHeader").submit();
+}
+
+function openRegAnimalModify(){
+    window.open("/front/popup_reg_animal_modify.do","popup_open","left=100, top=100,width=970,height=600, toolbar=no, menubar=no, statusbar=no, scrollbars=yes, resizable=no");
+}
+
+function subName(str){
+    var substr = '';
+    if(str.length > 13){
+        substr = str.substr(0,13)+'...';
+    }else{
+        substr = str;   
+    }
+    return substr;
+}
+
+function subName1(str){
+    var substr = '';
+    if(str.length > 5){
+        substr = str.substr(0,5)+'...';
+    }else{
+        substr = str;   
+    }
+    return substr;
+}
+
+function ScrollTop(){
+	self.window.scroll(0,0);
+}
+
+setTimeout(() => {
+	$(".icon-link").off("click");
+},1000);
+
+document.addEventListener('keydown', (event)=> {
+	// 내가 포커스 되어 있는 요소들 중 header라는 id가 있는지 확인
+// 	console.log("keydown");
+	if (event.key === 'ArrowDown'){
+// 		console.log("ArrowDown");
+		var isClosestHeader = document.activeElement.closest("#header") !== null;
+// 		console.log(isClosestHeader);
+		
+		if(isClosestHeader == true) {
+// 			console.log("헤더 내부 키보드 아래키 감지");
+			// homepageLocationDiv 가 있는 케이스
+			if(document.getElementById("homepageLocationDiv") !== null){
+				var locDiv = document.getElementById("homepageLocationDiv").querySelector(".home");
+				locDiv.setAttribute('tabindex','-1');
+// 				console.log("포커스이동");
+				locDiv.focus();
+				event.preventDefault();
+// 				console.log("스크롤방지");
+				
+				for(var i=0;i<5;i++){
+					var isGNBDrop = document.getElementsByClassName("sub-menu-new")[i]
+					if(isGNBDrop.style.display == 'block'){isGNBDrop.style.display = 'none'}
+				}
+// 				console.log("드랍다운 제거");
+				for(var i=0;i<6;i++){
+					if(i === 3){continue;}
+					var naviAct = document.getElementById("navi"+i)
+					if(naviAct.classList.contains("active") == true){naviAct.classList.remove('active')}
+				}
+// 				console.log("엑티브 제거");
+// 				console.log("GNB메뉴 닫기");	
+				// homepageLocationDiv 가 없는 케이스
+			}else{
+				var locDiv = document.getElementById("contents");
+				locDiv.setAttribute('tabindex','-1');
+
+				locDiv.focus();
+				event.preventDefault();
+				
+				for(var i=0;i<5;i++){
+					var isGNBDrop = document.getElementsByClassName("sub-menu-new")[i]
+					if(isGNBDrop.style.display == 'block'){isGNBDrop.style.display = 'none'}
+				}
+// 				console.log("드랍다운 제거");
+				for(var i=0;i<6;i++){
+					if(i === 3){continue;}
+					var naviAct = document.getElementById("navi"+i)
+					if(naviAct.classList.contains("active") == true){naviAct.classList.remove('active')}
+				}
+// 				console.log("엑티브 제거");
+// 				console.log("GNB메뉴 닫기");
+			}
+			
+		}
+		
+		if (event.key === 'ArrowDown'){
+			
+			var isClosestLocationDiv = document.activeElement.closest("#homepageLocationDiv") !== null;
+
+			if(isClosestHeader != true && isClosestLocationDiv == true) {
+				var conDiv = document.getElementById("contents");
+				conDiv.setAttribute('tabindex','-1');
+				conDiv.focus();
+				event.preventDefault();
+			}
+		}
+		
+	}
+	
+	
+	setTimeout(() => {
+	var dropBoxhandler = document.querySelectorAll('.page-location .container .wrap .drop-box');
+	dropBoxhandler.forEach((box) =>{
+		if(true === box.querySelector('a').classList.contains('active')){
+			box.querySelector('ul').style.display = 'block';
+			// box.querySelector('ul').setAttribute('aria-expanded','true');
+		}else{
+			box.querySelector('ul').style.display = 'none';
+			// box.querySelector('ul').setAttribute('aria-expanded','false');
+		}
+	})
+	},100);
+	
+	var paginathandler = document.querySelectorAll(".pagination > ul > li > a");
+	
+	paginathandler.forEach((hand) => {
+	
+		hand.addEventListener('focus', ()=> {
+			hand.style.border = '5px dashed black';
+			hand.style.borderRadius = '4px';
+			hand.style.outline = 'none';
+		});
+		
+		hand.addEventListener('blur', ()=>{
+			hand.style.border = 'none';
+		});
+
+	});	
+	
+	var skipLinks = document.querySelectorAll('.waSkipNav');
+	skipLinks.forEach(link=> {
+		link.addEventListener('click',function(e){
+			e.preventDefault();
+			
+			var locDiv = document.querySelector(".home") || document.getElementById("contents");
+			
+			if(locDiv !== null){
+				locDiv.tabIndex = -1;
+				locDiv.focus();
+				locDiv.scrollIntoView();
+			}else{
+				window.scrollTo(0,0)
+			}
+		});
+	});
+	
+});	
+
+</script>
+    <!--  header  -->
+    <script>
+    console.table("");
+    console.table("");
+    </script>
+
+    <header class="header" id="header">
+		<a href="javascript:void(0);" class="waSkipNav" title="본문으로 바로가기">본문으로 바로가기</a>
+        <!--  global menu  -->
+        <div class="top-utile-new">
+            <strong class="blind">글로벌메뉴</strong>
+            <div class="container">
+                <ul class="site-link">
+                    <li class="first"><a href="https://www.animal.go.kr/aec/index.do" target="_blank" class="icon-link" title="동물실험윤리위원회 새창열림" aria-expanded="false">동물실험윤리위원회</a></li>
+<!--                <li><a href="https://www.animal.go.kr/front/pssrp/index.do" target="_blank" class="icon-link" title="새창열림">동물사랑사진전</a></li> -->
+                    <li><a href="https://www.animallovecontest.kr" target="_blank" class="icon-link" title="새창열림" aria-expanded="false">동물사랑사진전</a></li>
+                    <li><a href="https://www.animal.go.kr/login/login_index.jsp" target="_blank" class="icon-link" title="업무시스템 새창열림" aria-expanded="false">업무시스템<span>(시군구, 대행업체)</span></a></li>
+                    
+					
+					
+                    <li class="last"><a class="dropdown nav-item" id="upNavi0" href="javascript:void(0)" aria-haspopup="true" aria-expanded="false">영업자</a>
+                        <ul style="">
+					   
+					
+
+					   
+					                     
+                            <li class="first"><a href="/front/awtis/business/reqBsnInfoView.do?menuNo=8000500004">영업자 권한 신청내역</a></li>
+					
+					
+
+					   
+					                     
+                            <li><a href="/front/awtis/business/bsnDlngDtlsList.do?menuNo=8000500001">영업자 실적 등록</a></li>
+					
+					
+
+					   
+					                     
+                            <li><a href="/front/awtis/shop/salesList.do?menuNo=5000000023">반려동물 영업자 안내</a></li>
+					
+					
+
+					   
+					                     
+                            <li><a href="/front/community/show.do?boardId=contents&amp;seq=310105&amp;menuNo=5000000017">무선식별장치 공급업체</a></li>
+					
+					
+
+					   
+					                     
+                            <li class="last"><a onfocusout="$(&quot;.nav-item.active&quot;).click();$(&quot;#upNavi0&quot;).focus();" href="/front/awtis/shop/hospitalList.do?menuNo=5000000026">전국 동물병원 조회</a></li>
+					
+                        </ul>
+                    </li>
+					
+					
+
+                </ul>
+                <ul class="utile-menu">
+               		
+		    			
+			    		
+			    			<li class="first"><a href="/front/awtis/join/joinInfo.do?menuNo=8000200008" class="icon-signup">회원가입</a></li>
+			    			<li><a href="/front/awtis/login/login.do?menuNo=8000200006" class="icon-signin">로그인</a></li>
+			    		
+			    	
+                    <li class="last"><a href="http://sup2.meatwatch.go.kr?menuNo=8000300010" class="icon-remote" target="_blank" title="새창열림">원격지원</a></li>
+                </ul>
+            </div>
+        </div><!--//  global menu  -->        
+
+        <div class="container" style="height: auto; flex-wrap: wrap;">
+            <h1 class="logo" id="logo">
+                <a href="/front/index.do" title="국가동물보호정보시스템 메인으로 이동">
+                    <span>국가동물보호정보시스템</span>
+                </a>
+            </h1>
+            <!--  GNB  -->
+            <nav class="gnb" id="gnb">
+                <h2 class="blind">메인메뉴</h2>
+                <div class="nav">
+                    <ul>
+		        		
+		        			
+		        			
+			                
+			                
+			                
+			                
+
+
+			                <li class="nav-item first" id="navi0">
+			                	
+			                		
+			                            
+			                            <a href="javascript:void(0);" id="mImgNavi0" class="nav-link" title="반려동물 등록 조회" aria-expanded="false">
+			                            	<span>반려동물 등록 조회</span>
+			                            </a>
+			                            <div class="sub-menu-new" aria-expanded="false">
+						                    <div class="container">
+						                        <div class="sub-title">
+						                            <span>반려동물 등록 조회</span>
+						                        </div>
+                                                <div class="wrap">
+						                        <ul>
+			                        
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li class="first">
+                                            
+                                        
+                                            <a href="/front/community/show.do?boardId=contents&amp;seq=66&amp;menuNo=2000000016" title="반려동물 등록">반려동물 등록</a>
+                                            <ol>
+                                                
+                                                	<!-- 웹접근성 백승엽 20250512 -->
+                                                    <!-- <li> -->
+                                                    <li>
+                                                        
+                                                        
+                                                        
+                                                        
+                                                            
+                                                            
+                                                                <a href="/front/community/show.do?boardId=contents&amp;seq=66&amp;menuNo=2000000016" title="동물등록제도 안내">동물등록제도 안내</a>
+                                                        
+                                                    </li>
+                                                
+                                                	<!-- 웹접근성 백승엽 20250512 -->
+                                                    <!-- <li> -->
+                                                    <li>
+                                                        
+                                                        
+                                                        
+                                                        
+                                                            
+                                                            
+                                                                <a href="/front/awtis/record/recordAgencyList.do?menuNo=2000000002" title="동물등록 대행기관 조회">동물등록 대행기관 조회</a>
+                                                        
+                                                    </li>
+                                                
+                                                	<!-- 웹접근성 백승엽 20250512 -->
+                                                    <!-- <li> -->
+                                                    <li>
+                                                        
+                                                        
+                                                        
+                                                        
+                                                            
+                                                                <a target="_blank" href="https://eminwon.qia.go.kr/intro/Quarantine/MicronoSearch.jsp?menuNo=2000000017" title="해외동물등록번호 조회 새창열림">해외동물등록번호 조회</a>
+                                                            
+                                                            
+                                                        
+                                                    </li>
+                                                
+                                                	<!-- 웹접근성 백승엽 20250512 -->
+                                                    <!-- <li> -->
+                                                    <li>
+                                                        
+                                                        
+                                                        
+                                                        
+                                                            
+                                                            
+                                                                <a href="/front/awtis/faq/faqList.do?menuNo=2000000021" title="자주하는 질문">자주하는 질문</a>
+                                                        
+                                                    </li>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li>
+                                            
+                                        
+                                            <a href="/front/awtis/record/recordConfirmList.do?menuNo=2000000011" title="반려동물 등록 조회">반려동물 등록 조회</a>
+                                            <ol>
+                                                
+                                                	<!-- 웹접근성 백승엽 20250512 -->
+                                                    <!-- <li> -->
+                                                    <li>
+                                                        
+                                                        
+                                                        
+                                                        
+                                                            
+                                                            
+                                                                <a href="/front/awtis/record/recordConfirmList.do?menuNo=2000000011" title="동물등록확인">동물등록확인</a>
+                                                        
+                                                    </li>
+                                                
+                                                	<!-- 웹접근성 백승엽 20250512 -->
+                                                    <!-- <li> -->
+                                                    <li>
+                                                        
+                                                        
+                                                        
+                                                        
+                                                            
+                                                            
+                                                                <a href="/front/awtis/mypage/registAnimalList.do?menuNo=2000000015" title="동물등록증 출력">동물등록증 출력</a>
+                                                        
+                                                    </li>
+                                                
+                                                	<!-- 웹접근성 백승엽 20250512 -->
+                                                    <!-- <li> -->
+                                                    <li>
+                                                        
+                                                        
+                                                        
+                                                        
+                                                            
+                                                            
+                                                                <a href="/front/awtis/mypage/registAnimalList.do?menuNo=2000000019" title="등록변경 신고하기">등록변경 신고하기</a>
+                                                        
+                                                    </li>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li  onfocusout='$(".nav-item.active").click();$("#mImgNavi0").focus();'> -->
+                        	            
+                                            
+                                            
+                                                <li class="last">
+                                            
+                                        
+                                            <a href="/front/awtis/fierceDog/breedingPermissionForm.do?menuNo=8000600003" title="맹견사육 관리">맹견사육 관리</a>
+                                            <ol>
+                                                
+                                                	<!-- 웹접근성 백승엽 20250512 -->
+                                                    <!-- <li> -->
+                                                    <li>
+                                                        
+                                                        
+                                                        
+                                                        
+                                                            
+                                                            
+                                                                <a href="/front/awtis/fierceDog/breedingPermissionForm.do?menuNo=8000600003" title="맹견사육허가">맹견사육허가</a>
+                                                        
+                                                    </li>
+                                                
+                                                	<!-- 웹접근성 백승엽 20250512 -->
+                                                    <!-- <li> -->
+                                                    <li>
+                                                        
+                                                        
+                                                        
+                                                        
+                                                            
+                                                            
+                                                                <a href="/front/awtis/fierceDog/breedingPermissionList.do?menuNo=8000600004" title="맹견사육허가 민원현황">맹견사육허가 민원현황</a>
+                                                        
+                                                    </li>
+                                                
+                                                	<!-- 웹접근성 백승엽 20250512 -->
+                                                    <!-- <li> -->
+                                                    <li>
+                                                        
+                                                        
+                                                        
+                                                        
+                                                            
+                                                            
+                                                                <a href="/front/awtis/fierceDog/incomeDeclarationFrom.do?menuNo=8000600001" title="맹견수입신고">맹견수입신고</a>
+                                                        
+                                                    </li>
+                                                
+                                                	<!-- 웹접근성 백승엽 20250512 -->
+                                                    <!-- <li> -->
+                                                    <li onfocusout="$(&quot;.nav-item.active&quot;).click();$(&quot;#mImgNavi0&quot;).focus();">
+                                                        
+                                                        
+                                                        
+                                                        
+                                                            
+                                                            
+                                                                <a href="/front/awtis/fierceDog/incomeDeclarationList.do?menuNo=8000600002" title="맹견수입신고 민원현황">맹견수입신고 민원현황</a>
+                                                        
+                                                    </li>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+						                            </ul>
+                                                    <div class="bg-line">
+                                                        <span></span>
+                                                        <span></span>
+                                                        <span></span>
+                                                        <span></span>
+                                                    </div>
+                                                </div>
+						                    </div>
+						                </div>
+			                        
+			                	
+			                </li>
+			                
+						
+		        			
+		        			
+			                
+			                
+			                
+			                
+
+
+			                <li class="nav-item" id="navi1">
+			                	
+			                		
+			                            
+			                            <a href="javascript:void(0);" id="mImgNavi1" class="nav-link" title="반려동물 분실·구조" aria-expanded="false">
+			                            	<span>반려동물 분실·구조</span>
+			                            </a>
+			                            <div class="sub-menu-new" aria-expanded="false">
+						                    <div class="container">
+						                        <div class="sub-title">
+						                            <span>반려동물 분실·구조</span>
+						                        </div>
+                                                <div class="wrap">
+						                        <ul>
+			                        
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li class="first">
+                                            
+                                        
+                                            <a href="/front/awtis/loss/lossList.do?menuNo=1000100000" title="반려동물 분실 신고">반려동물 분실 신고</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li>
+                                            
+                                        
+                                            <a href="/front/awtis/loss/findFrm.do?menuNo=1000000054" title="유실·유기동물 발견신고">유실·유기동물 발견신고</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li>
+                                            
+                                        
+                                            <a href="/front/awtis/public/publicList.do?menuNo=1000000055" title="보호센터 보호동물">보호센터 보호동물</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                                <li onfocusout="$(&quot;.nav-item.active&quot;).click();$(&quot;#mImgNavi1&quot;).focus();">
+                                            
+                                            
+                                        
+                                            <a href="/front/community/show.do?boardId=contents&amp;seq=209&amp;menuNo=1000000056" title="구조가 필요한 동물 발견시 대처 요령">구조가 필요한 동물 발견시 대처 요령</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li  onfocusout='$(".nav-item.active").click();$("#mImgNavi1").focus();'> -->
+                        	            
+                                            
+                                                <li onfocusout="$(&quot;.nav-item.active&quot;).click();$(&quot;#mImgNavi1&quot;).focus();" class="last">
+                                            
+                                            
+                                        
+                                            <a href="/front/awtis/stat/desertionStat.do?menuNo=1000500000" title="동물 구조 조치 현황">동물 구조 조치 현황</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+						                            </ul>
+                                                    <div class="bg-line">
+                                                        <span></span>
+                                                        <span></span>
+                                                        <span></span>
+                                                        <span></span>
+                                                    </div>
+                                                </div>
+						                    </div>
+						                </div>
+			                        
+			                	
+			                </li>
+			                
+						
+		        			
+		        			
+			                
+			                
+			                
+			                
+
+
+			                <li class="nav-item" id="navi2">
+			                	
+			                		
+			                            
+			                            <a href="javascript:void(0);" id="mImgNavi2" class="nav-link" title="반려동물 입양" aria-expanded="false">
+			                            	<span>반려동물 입양</span>
+			                            </a>
+			                            <div class="sub-menu-new" aria-expanded="false">
+						                    <div class="container">
+						                        <div class="sub-title">
+						                            <span>반려동물 입양</span>
+						                        </div>
+                                                <div class="wrap">
+						                        <ul>
+			                        
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li class="first">
+                                            
+                                        
+                                            <a href="/front/community/show.do?boardId=contents&amp;seq=53&amp;menuNo=1000000058" title="입양 안내">입양 안내</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li>
+                                            
+                                        
+                                            <a href="/front/awtis/protection/protectionList.do?menuNo=1000000060" title="입양대상 동물">입양대상 동물</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li>
+                                            
+                                        
+                                            <a href="/front/awtis/public/publicAllList.do?menuNo=1000000064" title="보호종료 동물">보호종료 동물</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li  onfocusout='$(".nav-item.active").click();$("#mImgNavi2").focus();'> -->
+                        	            
+                                            
+                                            
+                                                <li class="last">
+                                            
+                                        
+                                            <a href="/front/awtis/nsaAdopt/nsaAdoptList.do?menuNo=1000400000" title="국가봉사동물 입양">국가봉사동물 입양</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+						                            </ul>
+                                                    <div class="bg-line">
+                                                        <span></span>
+                                                        <span></span>
+                                                        <span></span>
+                                                        <span></span>
+                                                    </div>
+                                                </div>
+						                    </div>
+						                </div>
+			                        
+			                	
+			                </li>
+			                
+						
+		        			
+						
+		        			
+		        			
+			                
+			                
+			                
+			                
+
+
+			                <li class="nav-item" id="navi4">
+			                	
+			                		
+			                            
+			                            <a href="javascript:void(0);" id="mImgNavi4" class="nav-link" title="동물복지 인증" aria-expanded="false">
+			                            	<span>동물복지 인증</span>
+			                            </a>
+			                            <div class="sub-menu-new" aria-expanded="false">
+						                    <div class="container">
+						                        <div class="sub-title">
+						                            <span>동물복지 인증</span>
+						                        </div>
+                                                <div class="wrap">
+						                        <ul>
+			                        
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li class="first">
+                                            
+                                        
+                                            <a href="/front/community/show.do?boardId=contents&amp;seq=144&amp;menuNo=3000000017" title="동물복지 개요">동물복지 개요</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li>
+                                            
+                                        
+                                            <a href="/front/community/show.do?boardId=contents&amp;seq=170&amp;menuNo=3000000018" title="동물복지 축산인증제 소개">동물복지 축산인증제 소개</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li>
+                                            
+                                        
+                                            <a href="/front/community/show.do?boardId=contents&amp;seq=79&amp;menuNo=3000000019" title="인증절차">인증절차</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li>
+                                            
+                                        
+                                            <a href="/front/community/show.do?boardId=contents&amp;seq=131&amp;menuNo=3000000020" title="인증표시">인증표시</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li>
+                                            
+                                        
+                                            <a href="/front/awtis/certification/certificationList.do?menuNo=3000000012" title="동물복지축산농장">동물복지축산농장</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li>
+                                            
+                                        
+                                            <a href="/front/awtis/certification/certificationApplicationList.do?menuNo=3000000028" title="동물복지축산농장 인증신청">동물복지축산농장 인증신청</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                                <li onfocusout="$(&quot;.nav-item.active&quot;).click();$(&quot;#mImgNavi4&quot;).focus();">
+                                            
+                                            
+                                        
+                                            <a href="/front/awtis/faq/faqList.do?FaqType=FAQ0008&amp;menuNo=3000000026" title="자주하는 질문">자주하는 질문</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li  onfocusout='$(".nav-item.active").click();$("#mImgNavi4").focus();'> -->
+                        	            
+                                            
+                                            
+                                                <li class="last">
+                                            
+                                        
+                                            <a href="/front/community/index.do?boardId=epis_ref&amp;menuNo=3000000027" title="자료실">자료실</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+						                            </ul>
+                                                    <div class="bg-line">
+                                                        <span></span>
+                                                        <span></span>
+                                                        <span></span>
+                                                        <span></span>
+                                                    </div>
+                                                </div>
+						                    </div>
+						                </div>
+			                        
+			                	
+			                </li>
+			                
+						
+		        			
+		        			
+			                
+			                
+			                
+			                
+
+
+			                <li class="nav-item last" id="navi5">
+			                	
+			                		
+			                            
+			                            <a href="javascript:void(0);" id="mImgNavi5" class="nav-link" title="알림·자료" aria-expanded="false">
+			                            	<span>알림·자료</span>
+			                            </a>
+			                            <div class="sub-menu-new" aria-expanded="false">
+						                    <div class="container">
+						                        <div class="sub-title">
+						                            <span>알림·자료</span>
+						                        </div>
+                                                <div class="wrap">
+						                        <ul>
+			                        
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li class="first">
+                                            
+                                        
+                                            <a href="/front/community/index.do?boardId=boardID06&amp;menuNo=5000100000" title="공지사항">공지사항</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li>
+                                            
+                                        
+                                            <a href="/front/community/index.do?boardId=boardID07&amp;menuNo=5000200000" title="홍보자료">홍보자료</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li>
+                                            
+                                        
+                                            <a href="/front/community/index.do?boardId=boardID03&amp;menuNo=5000300000" title="동물보호복지 실태조사">동물보호복지 실태조사</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li>
+                                            
+                                        
+                                            <a href="/front/awtis/relevant/relevantList.do?menuNo=5000000014" title="지자체 담당부서 안내">지자체 담당부서 안내</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li>
+                                            
+                                        
+                                            <a href="/front/awtis/vworld/vworldMap.do?menuNo=5000000027" title="동물병원 동물보호센터 위치정보서비스">동물병원 동물보호센터 위치정보서비스</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li>
+                                            
+                                        
+                                            <a href="/front/awtis/institution/institutionList.do?menuNo=1000000059" title="동물보호센터 안내">동물보호센터 안내</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li > -->
+                        	            
+                                            
+                                            
+                                                <li>
+                                            
+                                        
+                                            <a href="/front/awtis/institution/prvateAnimalFcltyDclrAplyList.do?menuNo=1000000062" title="민간동물보호시설 안내">민간동물보호시설 안내</a>
+                                            <ol>
+                                                
+                                                	<!-- 웹접근성 백승엽 20250512 -->
+                                                    <!-- <li> -->
+                                                    <li>
+                                                        
+                                                        
+                                                        
+                                                        
+                                                            
+                                                            
+                                                                <a href="/front/awtis/institution/prvateAnimalFcltyDclrAplyList.do?menuNo=1000000061" title="민간동물보호시설 신고">민간동물보호시설 신고</a>
+                                                        
+                                                    </li>
+                                                
+                                                	<!-- 웹접근성 백승엽 20250512 -->
+                                                    <!-- <li> -->
+                                                    <li>
+                                                        
+                                                        
+                                                        
+                                                        
+                                                            
+                                                            
+                                                                <a href="/front/awtis/institution/prvateAnimalFcltyDclrAplyView.do?menuNo=1000000063" title="민간동물보호시설 신청내역">민간동물보호시설 신청내역</a>
+                                                        
+                                                    </li>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+			                	
+			                		
+			                        
+                                        <!-- 웹접근성 백승엽 20250512 -->
+                                        <!-- <li  onfocusout='$(".nav-item.active").click();$("#mImgNavi5").focus();'> -->
+                        	            
+                                            
+                                                <li onfocusout="$(&quot;.nav-item.active&quot;).click();$(&quot;#mImgNavi5&quot;).focus();" class="last">
+                                            
+                                            
+                                        
+                                            <a href="/front/awtis/roadCat/roadCatList.do?menuNo=5000000025" title="길고양이 중성화사업">길고양이 중성화사업</a>
+                                            <ol>
+                                                
+                                            </ol>
+                                        </li>
+			                        
+			                        
+						                            </ul>
+                                                    <div class="bg-line">
+                                                        <span></span>
+                                                        <span></span>
+                                                        <span></span>
+                                                        <span></span>
+                                                    </div>
+                                                </div>
+						                    </div>
+						                </div>
+			                        
+			                	
+			                </li>
+			                
+						
+                    </ul>
+                </div>
+            </nav><!--// GNB  -->
+            <div class="icon-menu">
+                <!--  통합검색  -->
+                <div class="total-search">
+                    <a href="javascript:void(0)" class="btn-total-search" aria-label="통합검색열기" title="통합검색 열기"><span class="sr_only">통합검색 열기</span></a>
+                    <form id="searchFrmHeader" name="searchFrmHeader" action="/itrinity/search.s" method="post"><input type="hidden" name="csSignature" value="FMuDZmIGfp3zCGXOzAFoIQ==" style="">
+
+			    		<fieldset>
+							<legend>통합검색</legend>
+							<div class="form-wrap">
+								<h2 class="tit">통합검색</h2>
+								<div class="input-wrap">
+									<label for="pQuery_tmp" style="width: 0px;height: 0px;display:block;overflow: hidden;">검색어를 입력해주세요</label>
+									<input type="text" class="form-control size-lg inputM" title="검색어를 입력해주세요" name="pQuery_tmp" id="pQuery_tmp" placeholder="검색어를 입력해주세요" style="">
+									<button type="submit" class="btn-submit">검색</button>
+								</div>
+				            </div>
+				            <a href="#none" class="btn-close" aria-label="검색닫기">검색닫기</a>
+				        </fieldset>
+					</form>
+                </div><!--//  통합검색  -->
+                <a href="/front/awtis/sitemap/sitemap.do?menuNo=8000200002" class="btn-sitemap btn-mnav" aria-label="사이트맵 보기" title="사이트맵 보기"><span class="sr_only">사이트맵 보기</span></a>
+            </div>
+            <div class="m-gnb-new" style="display: none;">
+                <div class="m-head">
+                    <div class="top-wrap">
+                        <div class="logo"></div>
+                        <a href="javascript:void(0)" class="btn-close" aria-label="모바일메뉴 닫기"><span>모바일메뉴 닫기</span></a>
+                    </div>
+                    <div class="utile">
+                        <ul>
+                    
+	    			
+		    		
+		    			<li class="first"><a href="/front/awtis/join/joinInfo.do?menuNo=8000200008" class="icon-signup">회원가입</a></li>
+		    			<li><a href="/front/awtis/login/login.do?menuNo=8000200006" class="icon-signin">로그인</a></li>
+		    		
+		    		
+				<li class="last"><a href="/front/awtis/sitemap/sitemap.do?menuNo=8000200002" class="icon-sitemap">사이트맵</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="m-menu">
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    <ul>
+                        <li class="first last">
+                            <a href="javascript:void(0)" class="toggle" aria-expanded="false">반려동물 등록 조회<i class="drop"></i></a>
+                            <ul aria-hidden="true">
+                               
+                                   <li class="first">
+                                       
+
+                                       
+                                       
+                                           <a href="javascript:void(0)" class="toggle" aria-expanded="false">반려동물 등록<i class="drop"></i></a>
+                                           <ul aria-hidden="true">
+                                                 
+                                                     
+                                                     
+														
+														                                                         
+                                                             
+                                                             
+                                                                 <!-- <li><a href="/front/community/show.do?boardId=contents&seq=66&menuNo=2000000016"> 동물등록제도 안내</a></li> -->
+                                                                 <li class="first"><a href="/front/community/show.do?boardId=contents&amp;seq=66&amp;menuNo=2000000016" title="동물등록제도 안내"> 동물등록제도 안내</a></li>
+                                                             
+                                                         
+                                                     
+                                                     
+														
+														                                                         
+                                                             
+                                                             
+                                                                 <!-- <li><a href="/front/awtis/record/recordAgencyList.do?menuNo=2000000002"> 동물등록 대행기관 조회</a></li> -->
+                                                                 <li><a href="/front/awtis/record/recordAgencyList.do?menuNo=2000000002" title="동물등록 대행기관 조회"> 동물등록 대행기관 조회</a></li>
+                                                             
+                                                         
+                                                     
+                                                     
+														
+														                                                         
+                                                             
+                                                                 <li><a target="_blank" href="https://eminwon.qia.go.kr/intro/Quarantine/MicronoSearch.jsp" title="해외동물등록번호 조회"> 해외동물등록번호 조회</a></li>
+                                                             
+                                                             
+                                                         
+                                                     
+                                                     
+														
+														                                                         
+                                                             
+                                                             
+                                                                 <!-- <li><a href="/front/awtis/faq/faqList.do?menuNo=2000000021"> 자주하는 질문</a></li> -->
+                                                                 <li class="last"><a href="/front/awtis/faq/faqList.do?menuNo=2000000021" title="자주하는 질문"> 자주하는 질문</a></li>
+                                                             
+                                                         
+                                                     
+                                                 
+                                           </ul>
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                       
+                                           <a href="javascript:void(0)" class="toggle" aria-expanded="false">반려동물 등록 조회<i class="drop"></i></a>
+                                           <ul aria-hidden="true">
+                                                 
+                                                     
+                                                     
+														
+														                                                         
+                                                             
+                                                             
+                                                                 <!-- <li><a href="/front/awtis/record/recordConfirmList.do?menuNo=2000000011"> 동물등록확인</a></li> -->
+                                                                 <li class="first"><a href="/front/awtis/record/recordConfirmList.do?menuNo=2000000011" title="동물등록확인"> 동물등록확인</a></li>
+                                                             
+                                                         
+                                                     
+                                                     
+														
+														                                                         
+                                                             
+                                                             
+                                                                 <!-- <li><a href="/front/awtis/mypage/registAnimalList.do?menuNo=2000000015"> 동물등록증 출력</a></li> -->
+                                                                 <li><a href="/front/awtis/mypage/registAnimalList.do?menuNo=2000000015" title="동물등록증 출력"> 동물등록증 출력</a></li>
+                                                             
+                                                         
+                                                     
+                                                     
+														
+														                                                         
+                                                             
+                                                             
+                                                                 <!-- <li><a href="/front/awtis/mypage/registAnimalList.do?menuNo=2000000019"> 등록변경 신고하기</a></li> -->
+                                                                 <li class="last"><a href="/front/awtis/mypage/registAnimalList.do?menuNo=2000000019" title="등록변경 신고하기"> 등록변경 신고하기</a></li>
+                                                             
+                                                         
+                                                     
+                                                 
+                                           </ul>
+                                       
+                                   </li>
+                               
+                                   <li class="last">
+                                       
+
+                                       
+                                       
+                                           <a href="javascript:void(0)" class="toggle" aria-expanded="false">맹견사육 관리<i class="drop"></i></a>
+                                           <ul aria-hidden="true">
+                                                 
+                                                     
+                                                     
+														
+														                                                         
+                                                             
+                                                             
+                                                                 <!-- <li><a href="/front/awtis/fierceDog/breedingPermissionForm.do?menuNo=8000600003"> 맹견사육허가</a></li> -->
+                                                                 <li class="first"><a href="/front/awtis/fierceDog/breedingPermissionForm.do?menuNo=8000600003" title="맹견사육허가"> 맹견사육허가</a></li>
+                                                             
+                                                         
+                                                     
+                                                     
+														
+														                                                         
+                                                             
+                                                             
+                                                                 <!-- <li><a href="/front/awtis/fierceDog/breedingPermissionList.do?menuNo=8000600004"> 맹견사육허가 민원현황</a></li> -->
+                                                                 <li><a href="/front/awtis/fierceDog/breedingPermissionList.do?menuNo=8000600004" title="맹견사육허가 민원현황"> 맹견사육허가 민원현황</a></li>
+                                                             
+                                                         
+                                                     
+                                                     
+														
+														                                                         
+                                                             
+                                                             
+                                                                 <!-- <li><a href="/front/awtis/fierceDog/incomeDeclarationFrom.do?menuNo=8000600001"> 맹견수입신고</a></li> -->
+                                                                 <li><a href="/front/awtis/fierceDog/incomeDeclarationFrom.do?menuNo=8000600001" title="맹견수입신고"> 맹견수입신고</a></li>
+                                                             
+                                                         
+                                                     
+                                                     
+														
+														                                                         
+                                                             
+                                                             
+                                                                 <!-- <li><a href="/front/awtis/fierceDog/incomeDeclarationList.do?menuNo=8000600002"> 맹견수입신고 민원현황</a></li> -->
+                                                                 <li class="last"><a href="/front/awtis/fierceDog/incomeDeclarationList.do?menuNo=8000600002" title="맹견수입신고 민원현황"> 맹견수입신고 민원현황</a></li>
+                                                             
+                                                         
+                                                     
+                                                 
+                                           </ul>
+                                       
+                                   </li>
+                               
+
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    <ul>
+                        <li class="first last">
+                            <a href="javascript:void(0)" class="toggle" aria-expanded="false">반려동물 분실·구조<i class="drop"></i></a>
+                            <ul aria-hidden="true">
+                               
+                                   <li class="first">
+                                       
+
+                                       
+                                           <!-- <a href="/front/awtis/loss/lossList.do?menuNo=1000100000" >반려동물 분실 신고</a> -->
+                                           <a href="/front/awtis/loss/lossList.do?menuNo=1000100000">반려동물 분실 신고</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                           <!-- <a href="/front/awtis/loss/lossList.do?menuNo=1000100000" >유실·유기동물 발견신고</a> -->
+                                           <a href="/front/awtis/loss/findFrm.do?menuNo=1000000054">유실·유기동물 발견신고</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                           <!-- <a href="/front/awtis/loss/lossList.do?menuNo=1000100000" >보호센터 보호동물</a> -->
+                                           <a href="/front/awtis/public/publicList.do?menuNo=1000000055">보호센터 보호동물</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                           <!-- <a href="/front/awtis/loss/lossList.do?menuNo=1000100000" >구조가 필요한 동물 발견시 대처 요령</a> -->
+                                           <a href="/front/community/show.do?boardId=contents&amp;seq=209&amp;menuNo=1000000056">구조가 필요한 동물 발견시 대처 요령</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li class="last">
+                                       
+
+                                       
+                                           <!-- <a href="/front/awtis/loss/lossList.do?menuNo=1000100000" >동물 구조 조치 현황</a> -->
+                                           <a href="/front/awtis/stat/desertionStat.do?menuNo=1000500000">동물 구조 조치 현황</a>
+                                       
+                                       
+                                   </li>
+                               
+
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    <ul>
+                        <li class="first last">
+                            <a href="javascript:void(0)" class="toggle" aria-expanded="false">반려동물 입양<i class="drop"></i></a>
+                            <ul aria-hidden="true">
+                               
+                                   <li class="first">
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/show.do?boardId=contents&seq=53&menuNo=1000000058" >입양 안내</a> -->
+                                           <a href="/front/community/show.do?boardId=contents&amp;seq=53&amp;menuNo=1000000058">입양 안내</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/show.do?boardId=contents&seq=53&menuNo=1000000058" >입양대상 동물</a> -->
+                                           <a href="/front/awtis/protection/protectionList.do?menuNo=1000000060">입양대상 동물</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/show.do?boardId=contents&seq=53&menuNo=1000000058" >보호종료 동물</a> -->
+                                           <a href="/front/awtis/public/publicAllList.do?menuNo=1000000064">보호종료 동물</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li class="last">
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/show.do?boardId=contents&seq=53&menuNo=1000000058" >국가봉사동물 입양</a> -->
+                                           <a href="/front/awtis/nsaAdopt/nsaAdoptList.do?menuNo=1000400000">국가봉사동물 입양</a>
+                                       
+                                       
+                                   </li>
+                               
+
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                
+                    
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    <ul>
+                        <li class="first last">
+                            <a href="javascript:void(0)" class="toggle" aria-expanded="false">동물복지 인증<i class="drop"></i></a>
+                            <ul aria-hidden="true">
+                               
+                                   <li class="first">
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/show.do?boardId=contents&seq=144&menuNo=3000000017" >동물복지 개요</a> -->
+                                           <a href="/front/community/show.do?boardId=contents&amp;seq=144&amp;menuNo=3000000017">동물복지 개요</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/show.do?boardId=contents&seq=144&menuNo=3000000017" >동물복지 축산인증제 소개</a> -->
+                                           <a href="/front/community/show.do?boardId=contents&amp;seq=170&amp;menuNo=3000000018">동물복지 축산인증제 소개</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/show.do?boardId=contents&seq=144&menuNo=3000000017" >인증절차</a> -->
+                                           <a href="/front/community/show.do?boardId=contents&amp;seq=79&amp;menuNo=3000000019">인증절차</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/show.do?boardId=contents&seq=144&menuNo=3000000017" >인증표시</a> -->
+                                           <a href="/front/community/show.do?boardId=contents&amp;seq=131&amp;menuNo=3000000020">인증표시</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/show.do?boardId=contents&seq=144&menuNo=3000000017" >동물복지축산농장</a> -->
+                                           <a href="/front/awtis/certification/certificationList.do?menuNo=3000000012">동물복지축산농장</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/show.do?boardId=contents&seq=144&menuNo=3000000017" >동물복지축산농장 인증신청</a> -->
+                                           <a href="/front/awtis/certification/certificationApplicationList.do?menuNo=3000000028">동물복지축산농장 인증신청</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/show.do?boardId=contents&seq=144&menuNo=3000000017" >자주하는 질문</a> -->
+                                           <a href="/front/awtis/faq/faqList.do?FaqType=FAQ0008&amp;menuNo=3000000026">자주하는 질문</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li class="last">
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/show.do?boardId=contents&seq=144&menuNo=3000000017" >자료실</a> -->
+                                           <a href="/front/community/index.do?boardId=epis_ref&amp;menuNo=3000000027">자료실</a>
+                                       
+                                       
+                                   </li>
+                               
+
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    <ul>
+                        <li class="first last">
+                            <a href="javascript:void(0)" class="toggle" aria-expanded="false">알림·자료<i class="drop"></i></a>
+                            <ul aria-hidden="true">
+                               
+                                   <li class="first">
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/index.do?boardId=boardID06&menuNo=5000100000" >공지사항</a> -->
+                                           <a href="/front/community/index.do?boardId=boardID06&amp;menuNo=5000100000">공지사항</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/index.do?boardId=boardID06&menuNo=5000100000" >홍보자료</a> -->
+                                           <a href="/front/community/index.do?boardId=boardID07&amp;menuNo=5000200000">홍보자료</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/index.do?boardId=boardID06&menuNo=5000100000" >동물보호복지 실태조사</a> -->
+                                           <a href="/front/community/index.do?boardId=boardID03&amp;menuNo=5000300000">동물보호복지 실태조사</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/index.do?boardId=boardID06&menuNo=5000100000" >지자체 담당부서 안내</a> -->
+                                           <a href="/front/awtis/relevant/relevantList.do?menuNo=5000000014">지자체 담당부서 안내</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/index.do?boardId=boardID06&menuNo=5000100000" >동물병원 동물보호센터 위치정보서비스</a> -->
+                                           <a href="/front/awtis/vworld/vworldMap.do?menuNo=5000000027">동물병원 동물보호센터 위치정보서비스</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/index.do?boardId=boardID06&menuNo=5000100000" >동물보호센터 안내</a> -->
+                                           <a href="/front/awtis/institution/institutionList.do?menuNo=1000000059">동물보호센터 안내</a>
+                                       
+                                       
+                                   </li>
+                               
+                                   <li>
+                                       
+
+                                       
+                                       
+                                           <a href="javascript:void(0)" class="toggle" aria-expanded="false">민간동물보호시설 안내<i class="drop"></i></a>
+                                           <ul aria-hidden="true">
+                                                 
+                                                     
+                                                     
+														
+														                                                         
+                                                             
+                                                             
+                                                                 <!-- <li><a href="/front/awtis/institution/prvateAnimalFcltyDclrAplyList.do?menuNo=1000000062"> 민간동물보호시설 신고</a></li> -->
+                                                                 <li class="first"><a href="/front/awtis/institution/prvateAnimalFcltyDclrAplyList.do?menuNo=1000000061" title="민간동물보호시설 신고"> 민간동물보호시설 신고</a></li>
+                                                             
+                                                         
+                                                     
+                                                     
+														
+														                                                         
+                                                             
+                                                             
+                                                                 <!-- <li><a href="/front/awtis/institution/prvateAnimalFcltyDclrAplyView.do?menuNo=1000000063"> 민간동물보호시설 신청내역</a></li> -->
+                                                                 <li class="last"><a href="/front/awtis/institution/prvateAnimalFcltyDclrAplyView.do?menuNo=1000000063" title="민간동물보호시설 신청내역"> 민간동물보호시설 신청내역</a></li>
+                                                             
+                                                         
+                                                     
+                                                 
+                                           </ul>
+                                       
+                                   </li>
+                               
+                                   <li class="last">
+                                       
+
+                                       
+                                           <!-- <a href="/front/community/index.do?boardId=boardID06&menuNo=5000100000" >길고양이 중성화사업</a> -->
+                                           <a href="/front/awtis/roadCat/roadCatList.do?menuNo=5000000025">길고양이 중성화사업</a>
+                                       
+                                       
+                                   </li>
+                               
+
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                
+                </div>
+            </div>            
+            <div class="m-backdrop"></div>
+        </div>
+	 	<!--  
+    <div class="right_banner" id="quick"> 
+    	<a href="/front/awtis/loss/findFrm.do?menuNo=1000000054" title="유실유기동물 발견신고로 이동">유실유기동물<br>발견신고<br><font>※사진첨부필수</font>
+    	</a>
+    	<a class="a2" href="/front/awtis/loss/lossList.do?menuNo=1000100000" title="유실유기동물 분실신고로 이동">유실유기동물<br>분실신고
+    	</a>
+    	<a class="a3" href="/front/awtis/loss/24hospitalList.do?menuNo=9000000003" title="추석연휴 진료 동물병원">추석연휴 진료<br>동물병원
+    	</a>
+    </div> 	
+	 	--> 	 
+
+    <div class="right_banner" id="quick" style="top: 1110px;">
+    	<a class="a2" href="/front/awtis/loss/findFrm.do?menuNo=1000000054" title="유실유기동물 분실신고로 이동">유실유기동물<br>발견신고 게시판이<br>신설되었습니다
+    	</a>
+    	<a href="/front/awtis/loss/findFrm.do?menuNo=1000000054" title="유실유기동물 발견신고로 이동">유실유기동물<br>발견신고<br><font>※사진첨부필수</font>
+    	</a>
+    </div> 	
+
+    </header>
+    <!--//  header  -->
+<article>
+	
+
+
+
+
+
+
+
+
+ 
+<!-- VISUAL -->
+<h2 class="blind">서브페이지 컨텐츠</h2>
+
+
+<script>
+	$(document).ready(function (){
+
+		// $('.drop-box > a.current').each(function (){
+		//
+		// 	var currentMenuName = $(this).find('span').text().trim() || $(this).text().trim();
+		//
+		// 	$(this).attr('title', '서브메뉴 선택 (현재 : ' + currentMenuName + ')');
+		// });
+		//
+		// $('.drop-box .menu-list a').each(function (){
+		// 	var targetMenuName = $(this).text().trim();
+		//
+		// 	$(this).attr('title', targetMenuName + ' 페이지로 이동');
+		// });
+
+	});
+</script>
+
+
+<div class="page-head" id="homepageLocationDiv">
+	<div class="page-tit">
+		<div class="container">
+			<h3>
+			
+				
+			
+				
+			
+				
+			
+				
+					
+					
+					보호센터 보호동물<br>		
+				
+			
+				
+			
+				
+			
+			
+			</h3>
+		</div>
+	</div>
+	<div class="page-location">
+		<div class="container"> 
+			<div class="wrap">
+            	<a href="/front/index.do" title="국가동물보호정보시스템 메인으로 이동" class="home"><span>홈</span></a> 
+            	
+            		
+            		
+		                <div class="drop-box">
+							<a href="javascript:void(0);" class="current" title="첫번째 서브메뉴"><span> 반려동물 분실·구조</span></a>
+							<ul class="menu-list">
+								
+									
+									
+									
+									
+									
+									
+									
+									<!--                 8번째 순번에 구조동물신고센터 위치를 위한 set작업 -->
+									
+									
+									
+									
+				                												
+
+											<li class="first"><a href="/front/community/show.do?boardId=contents&amp;seq=66&amp;menuNo=2000000016">반려동물 등록 조회</a></li>
+				                        
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+								
+									
+									
+									
+									
+									
+									
+									
+									<!--                 8번째 순번에 구조동물신고센터 위치를 위한 set작업 -->
+									
+									
+									
+									
+				                												
+
+											<li><a href="/front/awtis/loss/lossList.do?menuNo=1000100000">반려동물 분실·구조</a></li>
+				                        
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+								
+									
+									
+									
+									
+									
+									
+									
+									<!--                 8번째 순번에 구조동물신고센터 위치를 위한 set작업 -->
+									
+									
+									
+									
+				                												
+
+											<li><a href="/front/community/show.do?boardId=contents&amp;seq=53&amp;menuNo=1000000058">반려동물 입양</a></li>
+				                        
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+								
+									
+									
+									
+									
+									
+									
+									
+									<!--                 8번째 순번에 구조동물신고센터 위치를 위한 set작업 -->
+									
+									
+									
+									
+				                												
+
+											<li><a href="/front/awtis/business/reqBsnInfoView.do?menuNo=8000500004">영업자</a></li>
+				                        
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+								
+									
+									
+									
+									
+									
+									
+									
+									<!--                 8번째 순번에 구조동물신고센터 위치를 위한 set작업 -->
+									
+									
+									
+									
+				                												
+
+											<li><a href="/front/community/show.do?boardId=contents&amp;seq=144&amp;menuNo=3000000017">동물복지 인증</a></li>
+				                        
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+								
+									
+									
+									
+									
+									
+									
+									
+									<!--                 8번째 순번에 구조동물신고센터 위치를 위한 set작업 -->
+									
+									
+									
+									
+				                												
+
+											<li class="last"><a href="/front/community/index.do?boardId=boardID06&amp;menuNo=5000100000">알림·자료</a></li>
+				                        
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+				                		
+				                	
+								
+							</ul>
+						</div>
+						<div class="drop-box">
+							<a href="javascript:void(0);" class="current" title="두번째 서브메뉴">
+							<!-- 현재메뉴 -->
+											
+									
+											
+									
+										
+											
+											
+												
+													
+												
+											
+										
+									
+											
+									
+										
+											
+											
+												
+													
+												
+											
+										
+									
+											
+									
+										
+											
+											
+												
+													
+														<span>보호센터 보호동물</span>
+														
+													
+												
+											
+										
+									
+											
+									
+										
+											
+											
+												
+													
+												
+											
+										
+									
+											
+									
+										
+											
+											
+												
+													
+												
+											
+										
+									
+								
+							</a>
+							<ul class="menu-list">
+								
+									
+								
+									
+										
+											
+											
+												
+
+														<li class="leftbg_2depth first" id="_1000000000_1000100000">
+														<a href="/front/awtis/loss/lossList.do?menuNo=1000100000">반려동물 분실 신고</a>
+													</li>
+												
+											
+										
+									
+								
+									
+										
+											
+											
+												
+
+														<li class="leftbg_2depth" id="_1000000000_1000000054">
+														<a href="/front/awtis/loss/findFrm.do?menuNo=1000000054">유실·유기동물 발견신고</a>
+													</li>
+												
+											
+										
+									
+								
+									
+										
+											
+											
+												
+
+														<li class="leftbg_2depth" id="_1000000000_1000000055">
+														<a href="/front/awtis/public/publicList.do?menuNo=1000000055">보호센터 보호동물</a>
+													</li>
+												
+											
+										
+									
+								
+									
+										
+											
+											
+												
+
+														<li class="leftbg_2depth" id="_1000000000_1000000056">
+														<a href="/front/community/show.do?boardId=contents&amp;seq=209&amp;menuNo=1000000056">구조가 필요한 동물 발견시 대처 요령</a>
+													</li>
+												
+											
+										
+									
+								
+									
+										
+											
+											
+												
+
+														<li class="leftbg_2depth last" id="_1000000000_1000500000">
+														<a href="/front/awtis/stat/desertionStat.do?menuNo=1000500000">동물 구조 조치 현황</a>
+													</li>
+												
+											
+										
+									
+									
+							</ul>
+						</div>
+						
+            	
+            		
+            	
+			</div>
+		</div>
+	</div>
+</div><!--//  subpage header  -->
+   <!-- VISUAL --> 
+    
+    
+
+
+
+	<div class="sub-contents" id="contents">
+		<div class="container">
+
+			<div class="notice-box">
+				<div class="inner">
+					<ul class="list-type dot">
+						<li class="first">동물보호센터에서 구조·보호하고 있는 구조동물 정보를 알려 소유자에게 반환하기 위한 공간입니다.</li>
+						<li class="last">공고 중인 동물을 잃어버린 소유자는 해당 동물보호센터에 연락하시어 찾아가시기 바랍니다.<br>
+							<span style="color:blue;">다만, 「동물보호법」 제42조 및 같은 법 시행규칙 제26조에 따라 소유자에게 보호비용이 청구될 수 있습니다.</span><br>
+							<a href="/front/awtis/protection/protectionList.do?menuNo=1000000060" title="입양대상 동물 바로가기">입양대상 동물 바로가기</a>
+							<!-- 			               		<div class="text-right">
+                                                                <span class="badge badge-dark">시&#183;도지사, 시장&#183;군수&#183;구청장(직인 생략)</span>
+                                                            </div> -->
+						</li>
+					</ul>
+				</div>
+			</div>
+
+			<form id="excelList" name="excelList" action="/front/awtis/public/publicListExcel.do" method="get"><input type="hidden" name="csSignature" value="FMuDZmIGfp3zCGXOzAFoIQ==" style="">
+
+				<input type="hidden" name="boardId" value="" style="">
+				<input type="hidden" id="menuNo" name="menuNo" value="1000000055" style="">
+				<input type="hidden" name="searchSDate" value="2026-09-12" style="">
+				<input type="hidden" name="searchEDate" value="2026-10-12" style="">
+				<input type="hidden" name="searchUprCd" value="" style="">
+				<input type="hidden" name="searchOrgCd" value="" style="">
+				<input type="hidden" name="searchCareRegNo" value="" style="">
+				<input type="hidden" name="searchUpKindCd" value="" style="">
+				<input type="hidden" name="searchKindCd" value="" style="">
+				<input type="hidden" name="searchSexCd" value="" style="">
+				<input type="hidden" name="searchRfid" value="" style="">
+			</form>
+
+			<!-- 20250513 백승엽 동물보호 개선사항 -->
+			<form id="publicToProtection" class="search-condition" action="/front/awtis/protection/protectionList.do" method="POST" onsubmit="return false;"><input type="hidden" name="csSignature" value="FMuDZmIGfp3zCGXOzAFoIQ==" style="">
+
+				<input type="hidden" name="boardId" value="" style="">
+				<input type="hidden" name="page" id="page" value="1" style="">
+				<input type="hidden" name="pageSize" value="0" style="">
+				<input type="hidden" id="desertionNo" name="desertionNo" value="" style="">
+				<input type="hidden" id="menuNo" name="menuNo" value="1000000060" style="">
+
+				<input type="hidden" name="searchSDate" value="2026-09-12" style="">
+				<input type="hidden" name="searchEDate" value="2026-10-12" style="">
+				<input type="hidden" name="searchUprCd" value="" style="">
+				<input type="hidden" name="searchOrgCd" value="" style="">
+				<input type="hidden" name="searchCareRegNo" value="" style="">
+				<input type="hidden" name="searchUpKindCd" value="" style="">
+				<input type="hidden" name="searchKindCd" value="" style="">
+				<input type="hidden" name="searchSexCd" value="" style="">
+				<input type="hidden" name="searchRfid" value="" style="">
+			</form>
+
+			<form id="searchList" class="search-condition" action="/front/awtis/public/publicList.do" method="POST" onsubmit="return false;"><input type="hidden" name="csSignature" value="FMuDZmIGfp3zCGXOzAFoIQ==" style="">
+
+				<input type="hidden" name="boardId" value="" style="">
+				<input type="hidden" name="page" id="page" value="1" style="">
+				<input type="hidden" name="pageSize" value="0" style="">
+				<input type="hidden" id="desertionNo" name="desertionNo" value="" style="">
+				<input type="hidden" id="menuNo" name="menuNo" value="1000000055" style="">
+
+				<fieldset>
+					<legend>검색조건</legend>
+					<div class="tr">
+						<div class="form-group date">
+							<label class="lable" for="searchSDate">날짜</label>
+							<input type="date" name="searchSDate" id="searchSDate" class="form-control" title="시작일" maxlength="10/" style="">
+							<div class="hyphen">~</div>
+							<input type="date" name="searchEDate" id="searchEDate" class="form-control" title="마감일" maxlength="10/" style="">
+							<label class="lable">(접수일 기준)</label>
+						</div>
+					</div>
+					<div class="tr">
+						<div class="form-group">
+							<label class="lable" for="searchUprCd">시도</label>
+							<select class="form-control selectM" name="searchUprCd" id="searchUprCd" title="시도선택">
+								<option value="">전체</option>
+								
+									
+										<option value="6110000">서울특별시 </option>
+									
+										<option value="6260000">부산광역시 </option>
+									
+										<option value="6270000">대구광역시 </option>
+									
+										<option value="6280000">인천광역시 </option>
+									
+										<option value="5690000">세종특별자치시 </option>
+									
+										<option value="6300000">대전광역시 </option>
+									
+										<option value="6310000">울산광역시 </option>
+									
+										<option value="6410000">경기도 </option>
+									
+										<option value="6420000">강원특별자치도 </option>
+									
+										<option value="6430000">충청북도 </option>
+									
+										<option value="6440000">충청남도 </option>
+									
+										<option value="6450000">전북특별자치도 </option>
+									
+										<option value="6470000">경상북도 </option>
+									
+										<option value="6480000">경상남도 </option>
+									
+										<option value="6500000">제주특별자치도 </option>
+									
+										<option value="6130000">전남광주통합특별시 </option>
+									
+								
+							</select>
+						</div>
+						<div class="form-group">
+							<label class="lable" for="searchOrgCd">시군구</label>
+							<select class="form-control selectM" name="searchOrgCd" id="searchOrgCd" title="시군구선택">
+								
+							<option value="">전체</option></select>
+						</div>
+						<div class="form-group">
+							<label class="lable" for="searchCareRegNo">보호센터</label>
+							<select class="form-control selectM" name="searchCareRegNo" id="searchCareRegNo" title="보호센터선택">
+								
+							<option value="">전체</option></select>
+						</div>
+					</div>
+					<div class="tr">
+						<div class="form-group">
+							<label class="lable" for="searchUpKindCd">축종 및 품종</label>
+							<select class="form-control selectM" name="searchUpKindCd" id="searchUpKindCd" title="축종선택">
+								<option value="">전체</option>
+								<option value="417000">개</option>
+								<option value="422400">고양이</option>
+								<option value="429900">기타</option>
+							</select>
+							<select class="form-control selectM" name="searchKindCd" id="searchKindCd" title="종류선택">
+								
+							<option value="">전체</option></select>
+						</div>
+						<div class="form-group">
+							<label class="lable" for="searchSexCd">성별</label>
+							<select class="form-control selectM" name="searchSexCd" id="searchSexCd" title="성별선택">
+								<option value="">전체</option>
+								<option value="F">암컷</option>
+								<option value="M">수컷</option>
+								<option value="Q">미상</option>
+							</select>
+						</div>
+					</div>
+					<div class="tr">
+						<div class="form-group">
+							<label class="lable" for="searchRfid">동물등록번호</label>
+							<input type="text" class="form-control inputM" name="searchRfid" id="searchRfid" maxlength="15" size="20" title="동물등록번호입력" style="">
+						</div>
+					</div>
+					<div class="action-btn-group">
+						<div class="center">
+							<button type="submit" class="btn btn-primary w-3xl" id="searchButton" title="조회">
+								<i class="icon-search"></i>조회
+							</button>
+							<button type="submit" class="btn btn-primary w-3xl" id="searchPublicToProtectionButton" title="입양대상 동물 페이지로 이동">
+								<i class="icon-search"></i>입양대상 동물 페이지로 이동
+							</button>
+						</div>
+					</div>
+				</fieldset>
+			</form>
+			<div class="table-utility">
+				
+				
+					<div class="left"><div class="txt count">전체 <span>1,698</span> 건</div></div>
+					<div class="right"><button type="button" id="excel_button" class="btn btn-dark" title="엑셀다운로드">엑셀 다운로드</button></div>
+				
+			</div>
+			<ul class="animals-list">
+				
+					
+						
+							
+							
+							<li class="first">
+								<a href="#moveUrl" onclick="javascript:moveUrl('428356202601383');" title="인천-서해-2026-00158 자세히 보기" onkeypress="this.onclick;">
+									<div class="thum">
+										
+											
+												
+												
+													<div class="inner-img" style="background-image: url('/front/fileMng/imageView.do?f=/files/shelter/2026/09/202610121810432.jpg');">
+														<div style="width: 0px;height: 0px;overflow: hidden;">공고 번호가 인천-서해-2026-00158인 한국 고양이 동물 사진  </div>
+													</div>
+													<div class="thum-img"><img src="/front/fileMng/imageView.do?f=/files/shelter/2026/09/202610121810432.jpg" alt="공고 번호가 인천-서해-2026-00158인 한국 고양이 동물 사진"><!-- 숨겨진 이미지 --></div>
+												
+											
+										
+										
+									</div>
+									<div class="date">
+										<span>2026-10</span>
+										<em>12</em>
+									</div>
+									<ol>
+										<li class="subject">한국 고양이</li>
+										<li class="info">
+											<div class="info-item">
+												<div class="label">공고번호</div>
+												<div class="value">인천-서해-2026-00158</div>
+											</div>
+											<div class="info-item">
+												<div class="label">성별</div>
+												<div class="value">암컷</div>
+											</div>
+											<div class="info-item">
+												<div class="label">발견장소</div>
+												<div class="value">원전로 59번길 6..</div>
+											</div>
+											<div class="info-item">
+												<div class="label">특징</div>
+												<div class="value">5마리 함께 입소,..</div>
+											</div>
+												
+										</li>
+									</ol>
+								</a>
+							</li>
+						
+							
+							
+							<li>
+								<a href="#moveUrl" onclick="javascript:moveUrl('450650202602492');" title="제주-제주-2026-02416 자세히 보기" onkeypress="this.onclick;">
+									<div class="thum">
+										
+											
+												
+												
+													<div class="inner-img" style="background-image: url('/front/fileMng/imageView.do?f=/files/shelter/2026/09/202610121610537[3].jpg');">
+														<div style="width: 0px;height: 0px;overflow: hidden;">공고 번호가 제주-제주-2026-02416인 한국 고양이 동물 사진  </div>
+													</div>
+													<div class="thum-img"><img src="/front/fileMng/imageView.do?f=/files/shelter/2026/09/202610121610537[3].jpg" alt="공고 번호가 제주-제주-2026-02416인 한국 고양이 동물 사진"><!-- 숨겨진 이미지 --></div>
+												
+											
+										
+										
+									</div>
+									<div class="date">
+										<span>2026-10</span>
+										<em>12</em>
+									</div>
+									<ol>
+										<li class="subject">한국 고양이</li>
+										<li class="info">
+											<div class="info-item">
+												<div class="label">공고번호</div>
+												<div class="value">제주-제주-2026-02416</div>
+											</div>
+											<div class="info-item">
+												<div class="label">성별</div>
+												<div class="value">암컷</div>
+											</div>
+											<div class="info-item">
+												<div class="label">발견장소</div>
+												<div class="value">서귀포시 성산읍 성..</div>
+											</div>
+											<div class="info-item">
+												<div class="label">특징</div>
+												<div class="value">개체관리번호 265..</div>
+											</div>
+												
+										</li>
+									</ol>
+								</a>
+							</li>
+						
+							
+							
+							<li>
+								<a href="#moveUrl" onclick="javascript:moveUrl('450650202602489');" title="제주-제주-2026-02415 자세히 보기" onkeypress="this.onclick;">
+									<div class="thum">
+										
+											
+												
+												
+													<div class="inner-img" style="background-image: url('/front/fileMng/imageView.do?f=/files/shelter/2026/09/20261012161015[1].jpg');">
+														<div style="width: 0px;height: 0px;overflow: hidden;">공고 번호가 제주-제주-2026-02415인 한국 고양이 동물 사진  </div>
+													</div>
+													<div class="thum-img"><img src="/front/fileMng/imageView.do?f=/files/shelter/2026/09/20261012161015[1].jpg" alt="공고 번호가 제주-제주-2026-02415인 한국 고양이 동물 사진"><!-- 숨겨진 이미지 --></div>
+												
+											
+										
+										
+									</div>
+									<div class="date">
+										<span>2026-10</span>
+										<em>12</em>
+									</div>
+									<ol>
+										<li class="subject">한국 고양이</li>
+										<li class="info">
+											<div class="info-item">
+												<div class="label">공고번호</div>
+												<div class="value">제주-제주-2026-02415</div>
+											</div>
+											<div class="info-item">
+												<div class="label">성별</div>
+												<div class="value">암컷</div>
+											</div>
+											<div class="info-item">
+												<div class="label">발견장소</div>
+												<div class="value">제주시 이도이동 광..</div>
+											</div>
+											<div class="info-item">
+												<div class="label">특징</div>
+												<div class="value">개체관리번호 265..</div>
+											</div>
+												
+										</li>
+									</ol>
+								</a>
+							</li>
+						
+							
+							
+							<li>
+								<a href="#moveUrl" onclick="javascript:moveUrl('450650202602488');" title="제주-제주-2026-02414 자세히 보기" onkeypress="this.onclick;">
+									<div class="thum">
+										
+											
+												
+												
+													<div class="inner-img" style="background-image: url('/front/fileMng/imageView.do?f=/files/shelter/2026/09/202610121610583.jpg');">
+														<div style="width: 0px;height: 0px;overflow: hidden;">공고 번호가 제주-제주-2026-02414인 한국 고양이 동물 사진  </div>
+													</div>
+													<div class="thum-img"><img src="/front/fileMng/imageView.do?f=/files/shelter/2026/09/202610121610583.jpg" alt="공고 번호가 제주-제주-2026-02414인 한국 고양이 동물 사진"><!-- 숨겨진 이미지 --></div>
+												
+											
+										
+										
+									</div>
+									<div class="date">
+										<span>2026-10</span>
+										<em>12</em>
+									</div>
+									<ol>
+										<li class="subject">한국 고양이</li>
+										<li class="info">
+											<div class="info-item">
+												<div class="label">공고번호</div>
+												<div class="value">제주-제주-2026-02414</div>
+											</div>
+											<div class="info-item">
+												<div class="label">성별</div>
+												<div class="value">수컷</div>
+											</div>
+											<div class="info-item">
+												<div class="label">발견장소</div>
+												<div class="value">제주시 애월읍 하귀..</div>
+											</div>
+											<div class="info-item">
+												<div class="label">특징</div>
+												<div class="value">개체관리번호 265..</div>
+											</div>
+												
+										</li>
+									</ol>
+								</a>
+							</li>
+						
+							
+							
+							<li>
+								<a href="#moveUrl" onclick="javascript:moveUrl('450650202602484');" title="제주-제주-2026-02413 자세히 보기" onkeypress="this.onclick;">
+									<div class="thum">
+										
+											
+												
+												
+													<div class="inner-img" style="background-image: url('/front/fileMng/imageView.do?f=/files/shelter/2026/09/20261012161018.jpg');">
+														<div style="width: 0px;height: 0px;overflow: hidden;">공고 번호가 제주-제주-2026-02413인 한국 고양이 동물 사진  </div>
+													</div>
+													<div class="thum-img"><img src="/front/fileMng/imageView.do?f=/files/shelter/2026/09/20261012161018.jpg" alt="공고 번호가 제주-제주-2026-02413인 한국 고양이 동물 사진"><!-- 숨겨진 이미지 --></div>
+												
+											
+										
+										
+									</div>
+									<div class="date">
+										<span>2026-10</span>
+										<em>12</em>
+									</div>
+									<ol>
+										<li class="subject">한국 고양이</li>
+										<li class="info">
+											<div class="info-item">
+												<div class="label">공고번호</div>
+												<div class="value">제주-제주-2026-02413</div>
+											</div>
+											<div class="info-item">
+												<div class="label">성별</div>
+												<div class="value">수컷</div>
+											</div>
+											<div class="info-item">
+												<div class="label">발견장소</div>
+												<div class="value">제주시 용담이동 서..</div>
+											</div>
+											<div class="info-item">
+												<div class="label">특징</div>
+												<div class="value">개체관리번호 265..</div>
+											</div>
+												
+										</li>
+									</ol>
+								</a>
+							</li>
+						
+							
+							
+							<li>
+								<a href="#moveUrl" onclick="javascript:moveUrl('450650202602483');" title="제주-제주-2026-02412 자세히 보기" onkeypress="this.onclick;">
+									<div class="thum">
+										
+											
+												
+												
+													<div class="inner-img" style="background-image: url('/front/fileMng/imageView.do?f=/files/shelter/2026/09/202610121610315[1].jpg');">
+														<div style="width: 0px;height: 0px;overflow: hidden;">공고 번호가 제주-제주-2026-02412인 한국 고양이 동물 사진  </div>
+													</div>
+													<div class="thum-img"><img src="/front/fileMng/imageView.do?f=/files/shelter/2026/09/202610121610315[1].jpg" alt="공고 번호가 제주-제주-2026-02412인 한국 고양이 동물 사진"><!-- 숨겨진 이미지 --></div>
+												
+											
+										
+										
+									</div>
+									<div class="date">
+										<span>2026-10</span>
+										<em>12</em>
+									</div>
+									<ol>
+										<li class="subject">한국 고양이</li>
+										<li class="info">
+											<div class="info-item">
+												<div class="label">공고번호</div>
+												<div class="value">제주-제주-2026-02412</div>
+											</div>
+											<div class="info-item">
+												<div class="label">성별</div>
+												<div class="value">수컷</div>
+											</div>
+											<div class="info-item">
+												<div class="label">발견장소</div>
+												<div class="value">제주시 구좌읍 해맞..</div>
+											</div>
+											<div class="info-item">
+												<div class="label">특징</div>
+												<div class="value">개체관리번호 265..</div>
+											</div>
+												
+										</li>
+									</ol>
+								</a>
+							</li>
+						
+							
+							
+							<li>
+								<a href="#moveUrl" onclick="javascript:moveUrl('448567202601509');" title="경남-창원1-2026-00737 자세히 보기" onkeypress="this.onclick;">
+									<div class="thum">
+										
+											
+												
+												
+													<div class="inner-img" style="background-image: url('/front/fileMng/imageView.do?f=/files/shelter/2026/09/202610121710223.jpg');">
+														<div style="width: 0px;height: 0px;overflow: hidden;">공고 번호가 경남-창원1-2026-00737인 믹스견 동물 사진  </div>
+													</div>
+													<div class="thum-img"><img src="/front/fileMng/imageView.do?f=/files/shelter/2026/09/202610121710223.jpg" alt="공고 번호가 경남-창원1-2026-00737인 믹스견 동물 사진"><!-- 숨겨진 이미지 --></div>
+												
+											
+										
+										
+									</div>
+									<div class="date">
+										<span>2026-10</span>
+										<em>12</em>
+									</div>
+									<ol>
+										<li class="subject">믹스견</li>
+										<li class="info">
+											<div class="info-item">
+												<div class="label">공고번호</div>
+												<div class="value">경남-창원1-2026-00737</div>
+											</div>
+											<div class="info-item">
+												<div class="label">성별</div>
+												<div class="value">암컷</div>
+											</div>
+											<div class="info-item">
+												<div class="label">발견장소</div>
+												<div class="value">의창구 대산119안..</div>
+											</div>
+											<div class="info-item">
+												<div class="label">특징</div>
+												<div class="value">소방서 인계, 26..</div>
+											</div>
+												
+										</li>
+									</ol>
+								</a>
+							</li>
+						
+							
+							
+							<li>
+								<a href="#moveUrl" onclick="javascript:moveUrl('448567202601508');" title="경남-창원1-2026-00736 자세히 보기" onkeypress="this.onclick;">
+									<div class="thum">
+										
+											
+												
+												
+													<div class="inner-img" style="background-image: url('/front/fileMng/imageView.do?f=/files/shelter/2026/09/202610121610197.jpg');">
+														<div style="width: 0px;height: 0px;overflow: hidden;">공고 번호가 경남-창원1-2026-00736인 기타축종 동물 사진  </div>
+													</div>
+													<div class="thum-img"><img src="/front/fileMng/imageView.do?f=/files/shelter/2026/09/202610121610197.jpg" alt="공고 번호가 경남-창원1-2026-00736인 기타축종 동물 사진"><!-- 숨겨진 이미지 --></div>
+												
+											
+										
+										
+									</div>
+									<div class="date">
+										<span>2026-10</span>
+										<em>12</em>
+									</div>
+									<ol>
+										<li class="subject">기타축종</li>
+										<li class="info">
+											<div class="info-item">
+												<div class="label">공고번호</div>
+												<div class="value">경남-창원1-2026-00736</div>
+											</div>
+											<div class="info-item">
+												<div class="label">성별</div>
+												<div class="value">미상</div>
+											</div>
+											<div class="info-item">
+												<div class="label">발견장소</div>
+												<div class="value">의창구 북면수변공원..</div>
+											</div>
+											<div class="info-item">
+												<div class="label">특징</div>
+												<div class="value">생각보다 큰 편, ..</div>
+											</div>
+												
+										</li>
+									</ol>
+								</a>
+							</li>
+						
+							
+							
+							<li>
+								<a href="#moveUrl" onclick="javascript:moveUrl('448567202601507');" title="경남-창원1-2026-00735 자세히 보기" onkeypress="this.onclick;">
+									<div class="thum">
+										
+											
+												
+												
+													<div class="inner-img" style="background-image: url('/front/fileMng/imageView.do?f=/files/shelter/2026/09/202610121610231[1].jpg');">
+														<div style="width: 0px;height: 0px;overflow: hidden;">공고 번호가 경남-창원1-2026-00735인 기타축종 동물 사진  </div>
+													</div>
+													<div class="thum-img"><img src="/front/fileMng/imageView.do?f=/files/shelter/2026/09/202610121610231[1].jpg" alt="공고 번호가 경남-창원1-2026-00735인 기타축종 동물 사진"><!-- 숨겨진 이미지 --></div>
+												
+											
+										
+										
+									</div>
+									<div class="date">
+										<span>2026-10</span>
+										<em>12</em>
+									</div>
+									<ol>
+										<li class="subject">기타축종</li>
+										<li class="info">
+											<div class="info-item">
+												<div class="label">공고번호</div>
+												<div class="value">경남-창원1-2026-00735</div>
+											</div>
+											<div class="info-item">
+												<div class="label">성별</div>
+												<div class="value">미상</div>
+											</div>
+											<div class="info-item">
+												<div class="label">발견장소</div>
+												<div class="value">의창구 북면수변공원..</div>
+											</div>
+											<div class="info-item">
+												<div class="label">특징</div>
+												<div class="value">생각보다 큰 편, ..</div>
+											</div>
+												
+										</li>
+									</ol>
+								</a>
+							</li>
+						
+							
+							
+							<li class="last">
+								<a href="#moveUrl" onclick="javascript:moveUrl('448544202600473');" title="경남-하동-2026-00150 자세히 보기" onkeypress="this.onclick;">
+									<div class="thum">
+										
+											
+												
+												
+													<div class="inner-img" style="background-image: url('/front/fileMng/imageView.do?f=/files/shelter/2026/09/202610121010190.jpg');">
+														<div style="width: 0px;height: 0px;overflow: hidden;">공고 번호가 경남-하동-2026-00150인 믹스견 동물 사진  </div>
+													</div>
+													<div class="thum-img"><img src="/front/fileMng/imageView.do?f=/files/shelter/2026/09/202610121010190.jpg" alt="공고 번호가 경남-하동-2026-00150인 믹스견 동물 사진"><!-- 숨겨진 이미지 --></div>
+												
+											
+										
+										
+									</div>
+									<div class="date">
+										<span>2026-10</span>
+										<em>12</em>
+									</div>
+									<ol>
+										<li class="subject">믹스견</li>
+										<li class="info">
+											<div class="info-item">
+												<div class="label">공고번호</div>
+												<div class="value">경남-하동-2026-00150</div>
+											</div>
+											<div class="info-item">
+												<div class="label">성별</div>
+												<div class="value">수컷</div>
+											</div>
+											<div class="info-item">
+												<div class="label">발견장소</div>
+												<div class="value">경상남도 하동군옥종..</div>
+											</div>
+											<div class="info-item">
+												<div class="label">특징</div>
+												<div class="value">사람을 피하고 경게..</div>
+											</div>
+												
+										</li>
+									</ol>
+								</a>
+							</li>
+						
+					
+					
+				
+			</ul>
+
+			
+			
+				
+				
+			
+
+
+
+
+
+
+
+
+
+<div class="pagination">
+	<ul class="pc-num">
+		
+			
+			
+
+
+				<li class="first disabled"><span class="sr_only">첫페이지로</span></li>
+				<li class="prev disabled"><span class="sr_only">이전페이지로</span></li>
+			
+		
+		
+			
+				
+				
+					<li class="active"><a href="?totalCount=1698&amp;pageSize=10&amp;boardId=&amp;desertionNo=&amp;menuNo=1000000055&amp;searchSDate=2026-09-12&amp;searchEDate=2026-10-12&amp;searchUprCd=&amp;searchOrgCd=&amp;searchCareRegNo=&amp;searchUpKindCd=&amp;searchKindCd=&amp;searchSexCd=&amp;searchRfid=&amp;&amp;page=1"><span>1<div style="width: 0px;height: 0px;overflow: hidden;">선택됨</div></span></a></li>
+				
+			
+		
+			
+				
+					<li><a href="?totalCount=1698&amp;pageSize=10&amp;boardId=&amp;desertionNo=&amp;menuNo=1000000055&amp;searchSDate=2026-09-12&amp;searchEDate=2026-10-12&amp;searchUprCd=&amp;searchOrgCd=&amp;searchCareRegNo=&amp;searchUpKindCd=&amp;searchKindCd=&amp;searchSexCd=&amp;searchRfid=&amp;&amp;page=2"><span>2</span></a></li>
+				
+				
+			
+		
+			
+				
+					<li><a href="?totalCount=1698&amp;pageSize=10&amp;boardId=&amp;desertionNo=&amp;menuNo=1000000055&amp;searchSDate=2026-09-12&amp;searchEDate=2026-10-12&amp;searchUprCd=&amp;searchOrgCd=&amp;searchCareRegNo=&amp;searchUpKindCd=&amp;searchKindCd=&amp;searchSexCd=&amp;searchRfid=&amp;&amp;page=3"><span>3</span></a></li>
+				
+				
+			
+		
+			
+				
+					<li><a href="?totalCount=1698&amp;pageSize=10&amp;boardId=&amp;desertionNo=&amp;menuNo=1000000055&amp;searchSDate=2026-09-12&amp;searchEDate=2026-10-12&amp;searchUprCd=&amp;searchOrgCd=&amp;searchCareRegNo=&amp;searchUpKindCd=&amp;searchKindCd=&amp;searchSexCd=&amp;searchRfid=&amp;&amp;page=4"><span>4</span></a></li>
+				
+				
+			
+		
+			
+				
+					<li><a href="?totalCount=1698&amp;pageSize=10&amp;boardId=&amp;desertionNo=&amp;menuNo=1000000055&amp;searchSDate=2026-09-12&amp;searchEDate=2026-10-12&amp;searchUprCd=&amp;searchOrgCd=&amp;searchCareRegNo=&amp;searchUpKindCd=&amp;searchKindCd=&amp;searchSexCd=&amp;searchRfid=&amp;&amp;page=5"><span>5</span></a></li>
+				
+				
+			
+		
+			
+				
+					<li><a href="?totalCount=1698&amp;pageSize=10&amp;boardId=&amp;desertionNo=&amp;menuNo=1000000055&amp;searchSDate=2026-09-12&amp;searchEDate=2026-10-12&amp;searchUprCd=&amp;searchOrgCd=&amp;searchCareRegNo=&amp;searchUpKindCd=&amp;searchKindCd=&amp;searchSexCd=&amp;searchRfid=&amp;&amp;page=6"><span>6</span></a></li>
+				
+				
+			
+		
+			
+				
+					<li><a href="?totalCount=1698&amp;pageSize=10&amp;boardId=&amp;desertionNo=&amp;menuNo=1000000055&amp;searchSDate=2026-09-12&amp;searchEDate=2026-10-12&amp;searchUprCd=&amp;searchOrgCd=&amp;searchCareRegNo=&amp;searchUpKindCd=&amp;searchKindCd=&amp;searchSexCd=&amp;searchRfid=&amp;&amp;page=7"><span>7</span></a></li>
+				
+				
+			
+		
+			
+				
+					<li><a href="?totalCount=1698&amp;pageSize=10&amp;boardId=&amp;desertionNo=&amp;menuNo=1000000055&amp;searchSDate=2026-09-12&amp;searchEDate=2026-10-12&amp;searchUprCd=&amp;searchOrgCd=&amp;searchCareRegNo=&amp;searchUpKindCd=&amp;searchKindCd=&amp;searchSexCd=&amp;searchRfid=&amp;&amp;page=8"><span>8</span></a></li>
+				
+				
+			
+		
+			
+				
+					<li><a href="?totalCount=1698&amp;pageSize=10&amp;boardId=&amp;desertionNo=&amp;menuNo=1000000055&amp;searchSDate=2026-09-12&amp;searchEDate=2026-10-12&amp;searchUprCd=&amp;searchOrgCd=&amp;searchCareRegNo=&amp;searchUpKindCd=&amp;searchKindCd=&amp;searchSexCd=&amp;searchRfid=&amp;&amp;page=9"><span>9</span></a></li>
+				
+				
+			
+		
+			
+				
+					<li><a href="?totalCount=1698&amp;pageSize=10&amp;boardId=&amp;desertionNo=&amp;menuNo=1000000055&amp;searchSDate=2026-09-12&amp;searchEDate=2026-10-12&amp;searchUprCd=&amp;searchOrgCd=&amp;searchCareRegNo=&amp;searchUpKindCd=&amp;searchKindCd=&amp;searchSexCd=&amp;searchRfid=&amp;&amp;page=10"><span>10</span></a></li>
+				
+				
+			
+		
+		
+		
+			
+			    <li class="next"><a href="?totalCount=1698&amp;pageSize=10&amp;boardId=&amp;desertionNo=&amp;menuNo=1000000055&amp;searchSDate=2026-09-12&amp;searchEDate=2026-10-12&amp;searchUprCd=&amp;searchOrgCd=&amp;searchCareRegNo=&amp;searchUpKindCd=&amp;searchKindCd=&amp;searchSexCd=&amp;searchRfid=&amp;&amp;page=11" title="다음페이지로"><span class="sr_only">다음페이지로</span></a></li>
+			    <li class="last"><a href="?totalCount=1698&amp;pageSize=10&amp;boardId=&amp;desertionNo=&amp;menuNo=1000000055&amp;searchSDate=2026-09-12&amp;searchEDate=2026-10-12&amp;searchUprCd=&amp;searchOrgCd=&amp;searchCareRegNo=&amp;searchUpKindCd=&amp;searchKindCd=&amp;searchSexCd=&amp;searchRfid=&amp;&amp;page=170" title="끝페이지로"><span class="sr_only">끝페이지로</span></a></li>
+			
+			
+		
+	</ul>
+	<ul class="m-num">
+		
+			
+			
+
+
+				<li class="first disabled"><span class="sr_only">첫페이지로</span></li>
+				<li class="prev disabled"><span class="sr_only">이전페이지로</span></li>
+			
+		
+		<li class="page-mark"><span>1</span>170</li>
+		
+			
+			    <li class="next"><a href="?totalCount=1698&amp;pageSize=10&amp;boardId=&amp;desertionNo=&amp;menuNo=1000000055&amp;searchSDate=2026-09-12&amp;searchEDate=2026-10-12&amp;searchUprCd=&amp;searchOrgCd=&amp;searchCareRegNo=&amp;searchUpKindCd=&amp;searchKindCd=&amp;searchSexCd=&amp;searchRfid=&amp;&amp;page=2" title="다음페이지로"><span class="sr_only">다음페이지로</span></a></li>
+			    <li class="last"><a href="?totalCount=1698&amp;pageSize=10&amp;boardId=&amp;desertionNo=&amp;menuNo=1000000055&amp;searchSDate=2026-09-12&amp;searchEDate=2026-10-12&amp;searchUprCd=&amp;searchOrgCd=&amp;searchCareRegNo=&amp;searchUpKindCd=&amp;searchKindCd=&amp;searchSexCd=&amp;searchRfid=&amp;&amp;page=170" title="끝페이지로"><span class="sr_only">끝페이지로</span></a></li>
+			
+			
+		
+	</ul>
+</div>
+<script type="text/javascript">
+
+</script>
+
+<style>
+	.sr_only{
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow:  hidden;
+		clip: rect(0, 0, 0, 0);
+		border : 0;
+	}
+</style>
+
+					
+
+			
+			<br>
+			<div class="info-box">
+				<div class="inner">
+					※ 공고중인 동물 소유자는 <span style="color:blue;"><b>상세정보</b></span>를 참고하시어 해당<span style="color:blue;"><b>시군구</b></span> 및
+					<span style="color:blue;"><b>동물보호센터</b></span>로 문의하시기 바랍니다.<br>
+					※ 동물보호센터 및 동물병원 <span style="color:blue;"><b>근무시간은 09:00 ~ 18:00</b></span>이므로 문의전화는 근무시간에만 가능합니다.<br>
+					※ 국가동물보호정보시스템은 입양·반환·기증된 동물을 포함한 구조동물 정보를 공고 이후 사전적 공개하고 있음을 알려드립니다.
+				</div>
+			</div>
+		</div>
+	</div>
+</article>
+<!-- 풋터 시작 -->
+
+
+
+<script type="text/javascript" src="/front/js/jquery.PrintArea.js_4.js"></script>
+<script type="text/javascript" src="/front/js/jquery.printElement.js"></script>
+
+<script type="text/javascript">
+	$(function(){
+	    $("ul").each(function(){
+	        $(this).children().first().addClass('first');
+	        $(this).children().last().addClass('last');
+	    });
+	    $("tr").each(function(){
+	        $(this).children().first().addClass('first');
+	        $(this).children().last().addClass('last');
+	    });
+	});
+	$(function() { // 탭
+	    $(".tab_ul").not('.no_event').children('li').click(function(){
+	        var target = $(this).attr('data-key');
+	        $(this).addClass('active').siblings().removeClass('active');
+	        $(".tab_content").hide();
+	        $(".tab_content[data-key="+target+"]").show();
+	    });
+	});
+	function hidden_act(eq) { // hidden (비전)
+	    $(".hidden_act").eq(eq).show().siblings('.hidden_act').hide();
+	    //$('body, html').animate({scrollTop:1500},800);
+	    // alert($("#hidden_a").offset().top);
+	    // .scrollTop( $("#hidden_a").offset().top - 20 );
+	    self.location.hash = 'hidden_a';
+	}
+	$(document).ready(function() {
+	    //$(".copyright_opt").html("");
+	    $("#btnPrint").click(function() {
+	        printByJquery({
+	            printMode: 'popup', //팝업설정 popup = 팝업창 , iframe = iframe
+	            /* overrideElementCSS:[ '/front/css/homepage/common.css'
+	                                 , {href:'/css/homepage/common.css',media:''}
+	                                 ,{href:'/css/homepage/common_dev.css',media:''}
+	                                 ,{href:'/css/homepage/bbs.css',media:''}
+	                                 ,{href:'/css/homepage/contents.css',media:''} ], //css경로 */
+	
+	            overrideElementCSS:[ '/front/css/homepage/common_dev.css'
+	                                 , {href:'/css/homepage/cohmmon.css',media:''}
+	                                 ,{href:'/css/homepage/contents.css',media:''}
+	                                 ,{href:'/css/homepage/bbs.css',media:''} ], //css경로
+	            pageTitle:'', //인쇄 타이틀
+	            leaveOpen:false //false = 인쇄후 창닫기
+	        });
+	    });
+	});
+	function printByJquery(options) {
+	    /*2013.08.29 njkim 수정*/    
+	    //$("#area_bg").printElement(options);
+	    var p_title = $("h4").clone(true);
+	    var p_content = $("#content_area").clone(true);
+	
+	    //타이틀 백그라운드 제거
+	    $(p_title).css("background","");
+	    //인쇄버튼삭제
+	    $(p_content).find("#btnPrint").remove();
+	    $(p_content).find("#subcon_printarea").css("background","");
+	    //검색영역삭제
+	    $(p_content).find(".bbs_search").remove();
+	    //하단만족도조사삭제
+	    $(p_content).find("#page_bottom2").remove();
+	     
+	    //하단 첨부파일/이전글/다음글 영역삭제
+	    if($(p_content).find(".bbs_prev").length > 0){
+	        $(p_content).find(".bbs_prev").parent().parent().parent().parent().parent().remove();
+	    }else if($(p_content).find(".bbs_next").length > 0){
+	        $(p_content).find(".bbs_prev").parent().parent().parent().parent().parent().remove();
+	    }
+	
+	    //하단 버튼영역 삭제
+	    $(p_content).find(".bd1_listbtn").remove();
+	
+	    p_title.append(p_content).printElement(options);
+	}
+
+    var nowZoom = 100;
+    
+    function zoomOut(){
+    	nowZoom = nowZoom - 10;
+    	//alert(nowZoom);
+   		//if(nowZoom <= 70){ nowZoom = 70; }
+   		zooms();
+    }
+    
+    function zoomIn(){
+    	nowZoom = nowZoom + 10;
+    	//alert(nowZoom);
+    	//if(nowZoom >= 150){ nowZoom = 150; }
+    	zooms();
+    }
+    
+    function zoomReset(){
+    	nowZoom = 100;
+    	zooms();
+    }
+    
+    function zooms(){
+    	if(nowZoom < 70){ alert("70%축소 되었습니다. 더 이상 축소할 수 없습니다."); return;}
+    	if(nowZoom > 150){ alert("150%확대 되었습니다. 더 이상 확대 할 수 없습니다."); return;}
+    	//document.body.style.zoom = nowZoom+'%';
+    	document.body.style.fontSize=nowZoom+"pt";
+    	
+    }
+</script>
+
+    <footer class="footer" id="footer">
+        <h2 class="blind">하단영역</h2>     
+        <div class="container">
+            <ul>
+                <li class="first"><a href="/front/community/show.do?boardId=contents&amp;seq=183&amp;menuNo=7000000001" title="시스템소개 바로가기">시스템소개</a></li>
+                <li><a href="/front/community/show.do?boardId=contents&amp;seq=222&amp;menuNo=8000300007" title="저작권 정책 바로가기">저작권 정책</a></li>
+                <li><a href="/front/community/show.do?boardId=contents&amp;seq=235&amp;menuNo=8000200003" title="이용안내 바로가기">이용안내</a></li>
+                <li class="last"><a target="_blank" href="https://www.mafra.go.kr/home/5375/subview.do" title="개인정보처리방침 바로가기" class="text-primary text-bold-5">개인정보처리방침</a></li>
+            </ul>
+            <div class="copyright">
+                <div class="logo">농림축산검역본부</div>
+                <div class="addr">
+                    39660 경상북도 김천시 혁신8로 177(율곡동)<span>전화번호 : <font color="blue">1577-0954</font> (시스템 문의 <font color="blue">054-810-8627</font>)</span><br>
+                    Copyright by Animal and Plant Quarantine Agency. All Rights Reserved.
+                </div>
+                <a title="새창" href="http://www.wa.or.kr/board/list.asp?BoardID=0006" target="_blank" class="wamark">
+                    <img src="/front/images/common/wamark.png" alt="(사)한국장애인단체총연합회 한국웹접근성인증평가원 웹 접근성 우수사이트 인증마크(WA인증마크)">
+                </a>
+            </div>
+        </div>
+    </footer>
+<!-- 풋터 끝 -->
+
+<div id="cboxOverlay" style="display: none;"></div><div id="colorbox" class="" role="dialog" tabindex="-1" style="display: none;"><div id="cboxWrapper"><div><div id="cboxTopLeft" style="float: left;"></div><div id="cboxTopCenter" style="float: left;"></div><div id="cboxTopRight" style="float: left;"></div></div><div style="clear: left;"><div id="cboxMiddleLeft" style="float: left;"></div><div id="cboxContent" style="float: left;"><div id="cboxTitle" style="float: left;"></div><div id="cboxCurrent" style="float: left;"></div><button type="button" id="cboxPrevious"></button><button type="button" id="cboxNext"></button><button type="button" id="cboxSlideshow"></button><div id="cboxLoadingOverlay" style="float: left;"></div><div id="cboxLoadingGraphic" style="float: left;"></div></div><div id="cboxMiddleRight" style="float: left;"></div></div><div style="clear: left;"><div id="cboxBottomLeft" style="float: left;"></div><div id="cboxBottomCenter" style="float: left;"></div><div id="cboxBottomRight" style="float: left;"></div></div></div><div style="position: absolute; width: 9999px; visibility: hidden; display: none; max-width: none;"></div></div></body></html>
